@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="action_settings">Settings</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+    <string name="contacts_string">Contacts</string>
+    <string name="title_activity_single_conversation">SingleConversationActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="chat_settings">Settings</string>
+    <string name="push_notifications_summary">Push enabled</string>
+    <string name="push_notifictaions">Enable push notifications</string>
+    <string name="edit_name_summary">Edit Name</string>
+    <string name="edit_name">Edit your username</string>
+    <string name="chat_help">Help</string>
+</resources>

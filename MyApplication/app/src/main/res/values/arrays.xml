@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="options">
+        <item>@string/contacts_string</item>
+        <item>@string/chat_settings</item>
+        <item>@string/chat_help</item></string-array>
+</resources>
