@@ -15,8 +15,19 @@ public class ChatListAdapter extends ArrayAdapter {
     private List itemList;
     public ChatListAdapter(Context context, int resource) {
         super(context, resource);
+
+
     }
 
+
+    public void initializeAdapter()
+    {
+        Application.getService().getUsersForGroup("group123");
+
+
+        //TODO: test
+
+    }
     @Override
     public Object getItem(int position) {
         return itemList.get(position);
