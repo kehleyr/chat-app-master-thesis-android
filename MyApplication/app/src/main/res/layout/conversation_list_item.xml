@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="20dp"
+    android:layout_marginBottom="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/messageText"
+android:layout_marginRight="20dip"
+        android:layout_marginLeft="20dip"/>
+
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:id="@+id/music_view">
+    <ImageView android:contentDescription="imageView" android:id="@+id/artistImage"
+        android:layout_width="80dip"
+        android:layout_height="80dip"
+        android:src="@drawable/studiengebuehren"
+      android:scaleType="centerCrop"
+        android:layout_marginLeft="20dip"
+        />
+
+
+    <ImageButton
+        android:layout_width="100dip"
+        android:layout_height="wrap_content"
+        android:text="Play/Pause"
+        android:id="@+id/button"
+        android:src="@drawable/play_pause"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp" />
+
+    <TextView android:id="@+id/textSong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="short"
+        android:layout_marginLeft="30dip"
+        android:layout_toLeftOf="@id/button"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/artistImage"
+
+        android:textAppearance="?android:attr/textAppearanceMedium"
+       />
+
+
+</RelativeLayout>
+
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ratingBar"
+        android:numStars="5"
+        android:rating="0"
+        android:stepSize="1"/>
+
+
+</LinearLayout>

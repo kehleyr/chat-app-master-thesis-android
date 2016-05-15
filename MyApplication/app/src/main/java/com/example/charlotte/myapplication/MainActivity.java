@@ -15,6 +15,8 @@ package com.example.charlotte.myapplication;/*
  */
 
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -22,12 +24,15 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,6 +44,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
+import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.Spotify;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * This example illustrates a common usage of the DrawerLayout widget
@@ -75,6 +91,22 @@ public class MainActivity extends AppCompatActivity {
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private String[] mPlanetTitles;
+
+    private static final String CLIENT_ID = "7deb76a46e184f88ad88542ed347edcc";
+    // TODO: Replace with your redirect URI
+    private static final String REDIRECT_URI = "yourcustomprotocol://callback";
+    private static final int REQUEST_CODE = 1337;
+    private Player mPlayer;
+
+    public static Config getPlayerConfig() {
+        return playerConfig;
+    }
+
+    public static void setPlayerConfig(Config playerConfig) {
+        MainActivity.playerConfig = playerConfig;
+    }
+
+    private static Config playerConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +152,14 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             selectItem(0);
         }
+
+        UserSingleton.getInstance().setUser(new User("userBla", "ClubMate"));
+
+
+
+        Intent intent2 = new Intent(this, RegistrationIntentService.class);
+        startService(intent2);
+
     }
 
     @Override
@@ -231,4 +271,12 @@ public class MainActivity extends AppCompatActivity {
      * Fragment that appears in the "content_frame", shows a planet
      */
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+
     }
+}

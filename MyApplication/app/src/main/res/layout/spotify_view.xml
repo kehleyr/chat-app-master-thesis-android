@@ -1,0 +1,12 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+ <ImageView android:contentDescription="imageView" android:id="@+id/artistImage"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:src="@drawable/studiengebuehren" />
+    <TextView android:id="@+id/textSong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sample Artist - Sample Song"
+        android:layout_marginLeft="50dip"/>
+</merge>

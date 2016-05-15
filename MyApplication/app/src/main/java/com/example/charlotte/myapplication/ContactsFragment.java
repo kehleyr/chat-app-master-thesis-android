@@ -20,8 +20,7 @@ public class ContactsFragment extends ListFragment {
         //these are example values
         //TODO: load real values via asynctask
         String[] values = new String[] { "Lisa", "Tom", "Fritz", "Lara"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_1, values);
+        ArrayAdapter<User> adapter = new ChatListAdapter(getActivity(), android.R.layout.simple_list_item_1);
         setListAdapter(adapter);
     }
 
@@ -31,9 +30,15 @@ public class ContactsFragment extends ListFragment {
 
         //TODO: send the position in bundle to new activity
 
+        User user= (User) getListView().getItemAtPosition(position);
+
         Intent intent = new Intent(getActivity(), SingleConversationActivity.class);
+        intent.putExtra("username", user.getUsername());
         startActivity(intent);
 
-
     }
+
+
+
+
 }
