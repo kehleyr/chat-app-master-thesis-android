@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "389750004407",
+    "project_id": "chatapp-73b5"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389750004407:android:6f1bbf5f0c5ef092",
+        "android_client_info": {
+          "package_name": "com.example.charlotte.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqcXgqotXopeFYXVKMf7h-gZvMYh_FwUU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
