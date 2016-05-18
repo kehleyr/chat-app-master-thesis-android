@@ -15,25 +15,15 @@ public class Message {
     Location fromUserLocation;
     String fromUserName, toUserName;
 
-    public Location getLocation() {
-        return location;
+    public Location getSenderLocation() {
+        return senderLocation;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setSenderLocation(Location senderLocation) {
+        this.senderLocation = senderLocation;
     }
 
-    Location location;
-
-    public SingleShotLocationProvider.GPSCoordinates getCoordinates() {
-        return coordinates;
-    }
-
-    public void setCoordinates(SingleShotLocationProvider.GPSCoordinates coordinates) {
-        this.coordinates = coordinates;
-    }
-
-    SingleShotLocationProvider.GPSCoordinates coordinates;
+    Location senderLocation;
 
     public AmbientNoise getAmbientNoise() {
         return ambientNoise;

@@ -74,7 +74,8 @@
         <activity
             android:name=".SingleConversationActivity"
             android:label="@string/title_activity_single_conversation"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="stateHidden"></activity>
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"/>

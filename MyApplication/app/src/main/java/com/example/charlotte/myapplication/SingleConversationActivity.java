@@ -221,7 +221,7 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
                 if (location!=null)
                 {
 
-                    message.setLocation(location);
+                    message.setSenderLocation(location);
                 }
 
                 sendMessageToServer(message);
@@ -233,7 +233,7 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
             }
         });
 
-        //TODO: user another location if not accurate enough?
+        //TODO: user another senderLocation if not accurate enough?
 /*
 
         Cursor ambientNoiseData = getContentResolver().query(Provider.AmbientNoise_Data.CONTENT_URI, new String[]{"timestamp", "double_decibels", "is_silent"}, null, null, "timestamp DESC");
@@ -350,8 +350,8 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
 
             Log.d("TAG", "created call");
 
-        sendMessageToServer(message);
-
+    //    sendMessageToServer(message);
+//TODO: if/else
 
 
     }
@@ -385,7 +385,7 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
                         @Override
                         public void onNewLocationAvailable(Location location) {
                             locationFetchedInteface.hasFetchedLocation(location);
-                            Log.d("Location", "my location is " + location.getLatitude() + " " + location.getLongitude());
+                            Log.d("Location", "my senderLocation is " + location.getLatitude() + " " + location.getLongitude());
                         }
                     });
 
@@ -399,8 +399,8 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
             final Observable<Location> goodEnoughQuicklyOrNothingObservable = locationProvider.getUpdatedLocation(req)
                /* .filter(new Func1<Location, Boolean>() {
                     @Override
-                    public Boolean call(Location location) {
-                        return location.getAccuracy() < SUFFICIENT_ACCURACY;
+                    public Boolean call(Location senderLocation) {
+                        return senderLocation.getAccuracy() < SUFFICIENT_ACCURACY;
                     }
                 })*/
                     .timeout(LOCATION_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS, Observable.just((Location) null), AndroidSchedulers.mainThread())
@@ -411,7 +411,7 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
           Subscription subscription= goodEnoughQuicklyOrNothingObservable.subscribe(new Action1<Location>() {
                 @Override
                 public void call(Location location) {
-                    Log.d("TAG", "location: " + location.getLatitude() + location.getLongitude());
+                    Log.d("TAG", "senderLocation: " + location.getLatitude() + location.getLongitude());
 
                     locationFetchedInteface.hasFetchedLocation(location);
 
@@ -680,6 +680,7 @@ Log.e("TAG", "on logged out");
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d("TAG", "on destroy called");
 
 
 

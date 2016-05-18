@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,12 +31,14 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
     private List itemList;
     private static final int DB_MIN_VALUE=0;
     private static final int DB_MAX_VALUE=120;
+    private long startTime;
 
     public ConversationListAdapter(Context context, int resource, String fromUser, String toUser) {
         super(context, resource);
         this.fromUser = fromUser;
         this.toUser = toUser;
         initializeAdapter();
+        Log.d("TAG", "new conversation list adapter");
 
 
     }
@@ -46,8 +49,10 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
     }
 
     public void initializeAdapter() {
-        Call<List<Message>> call = Application.getService().getConversation(fromUser, toUser, 30);
-        Log.d("TAG", "created call");
+        startTime = System.nanoTime();
+
+        Call<List<Message>> call = Application.getService().getConversation(fromUser, toUser, 0);
+        Log.d("TAG", "initialize adapter again");
 
         call.enqueue(new Callback<List<Message>>() {
             @Override
@@ -64,6 +69,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
                 }
                 clear();
                 addAll(messages);
+                Log.d("TAG", "notify dataset changed");
                 notifyDataSetChanged();
 
             }
@@ -86,9 +92,17 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
     public View getView(int position, View convertView, ViewGroup parent) {
         // return super.getView(position, convertView, parent);
 
+        if (position==0)
+        {
+            long difference = System.nanoTime() - startTime;
+            Log.d("TAG", "time between data loading and get view call " + TimeUnit.NANOSECONDS.toMillis(difference)+ "ms");
+        }
+
         final ViewHolder viewHolder;
 
         if (convertView == null) {
+
+            Log.d("TAG", "convert view is null");
 
             // inflate the layout
             LayoutInflater inflater = LayoutInflater.from(getContext());
@@ -108,6 +122,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
+            Log.d("TAG", "convert view is not null");
 
 
         }
