@@ -1,6 +1,7 @@
 package com.example.charlotte.myapplication;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,7 +116,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
             viewHolder.songImageView= (ImageView) convertView.findViewById(R.id.artistImage);
             viewHolder.songTitleTextView= (TextView) convertView.findViewById(R.id.textSong);
             viewHolder.button = (ImageButton) convertView.findViewById(R.id.button);
-            viewHolder.ratingBar = (RatingBar) convertView.findViewById(R.id.ratingBar);
+            viewHolder.distanceText = (TextView)convertView.findViewById(R.id.distanceView);
 
             // store the holder with the view.
             convertView.setTag(viewHolder);
@@ -126,7 +127,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
 
         }
-        Message message = getItem(position);
+        final Message message = getItem(position);
         if (message!=null) {
 
 
@@ -142,7 +143,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
            // else{
 
-                viewHolder.ratingBar.setVisibility(View.GONE);
+
           //  }
             //message from other user, better check something else! TODO
             String displayName="Name";
@@ -163,35 +164,30 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
                 if (song.getSpotifyID()!=null)
                 {
-
                     Log.d("TAG", "spotify song id: "+song.getSpotifyID());
 
-                    SpotifyServiceSingleton.getInstance().getPhotoPathForTrack(song.getSpotifyID(), new SpotifyPhotoCallback() {
+                    final String spotifyId=song.getSpotifyID();
+                    showPlayButtonAndSpotifyImage(viewHolder, spotifyId);
+
+
+                }
+                else {
+
+                    SpotifyServiceSingleton.getInstance().getSpotifyIdForSongData(song.getArtist(), song.getSongname(), new SpotifyTrackCallback() {
                         @Override
-                        public void photoFetched(String photo) {
-                            ImageLoader imageLoader = ImageLoader.getInstance();
-                            imageLoader.displayImage(photo, viewHolder.songImageView);
+                        public void trackFetched(String trackId) {
+
+                            if (trackId!=null) {
+                                Log.d("TAG", "track id");
+                                showPlayButtonAndSpotifyImage(viewHolder, trackId);
+
+                                //TODO: add track id to server!
+                            }
                         }
                     });
 
 
-
-
                 }
-
-                viewHolder.button.setVisibility(View.VISIBLE);
-
-
-                viewHolder.button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (getContext()!=null) {
-
-                            ((SingleConversationActivity) getContext()).playSong(song.getSpotifyID());
-
-                        }
-                    }
-                });
 
 
                 musicView.setVisibility(View.VISIBLE);
@@ -209,6 +205,45 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
 
 
+            if (message.getUsersDistance()!=null)
+            {
+
+                float distance = message.getUsersDistance().getDistanceValue();
+                viewHolder.distanceText.setText(""+distance);
+
+            }
+            else  if (message.getSenderLocation()!=null){
+
+
+                final Location otherUserDistance=message.getSenderLocation();
+
+                LocationHelper.getInstance().determineLocation(getContext(), getContext().getApplicationContext(), new LocationFetchedInteface() {
+                    @Override
+                    public void hasFetchedLocation(Location location) {
+
+                        if (location!=null) {
+                            Log.d("TAG", "my own locatin: " + location.toString());
+                            float[] res = new float[1];
+                            Location.distanceBetween(otherUserDistance.getLatitude(), otherUserDistance.getLongitude(), location.getLatitude(), location.getLongitude(), res);
+                            float distanceInMeters = res[0];
+
+                            Log.d("TAG", "my distance in meters: " + distanceInMeters);
+                            viewHolder.distanceText.setText("Distanz: " + distanceInMeters);
+
+                            //TODO: update with distance on server
+
+                        }
+
+                        else {
+
+                            Log.d("TAG", "location is null here, why?");
+                        }
+
+                    }
+                });
+
+            }
+
 
 
 
@@ -217,6 +252,31 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         return convertView;
 
 
+    }
+
+    private void showPlayButtonAndSpotifyImage(final ViewHolder viewHolder, final String spotifyId) {
+        SpotifyServiceSingleton.getInstance().getPhotoPathForTrack(spotifyId, new SpotifyPhotoCallback() {
+            @Override
+            public void photoFetched(String photo) {
+                ImageLoader imageLoader = ImageLoader.getInstance();
+                imageLoader.displayImage(photo, viewHolder.songImageView);
+            }
+        });
+
+
+        viewHolder.button.setVisibility(View.VISIBLE);
+
+
+        viewHolder.button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getContext()!=null) {
+
+                    ((SingleConversationActivity) getContext()).playSong(spotifyId);
+
+                }
+            }
+        });
     }
 
     public int getStartsForRatingBar(double db)
@@ -247,6 +307,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         ImageView songImageView;
         public ImageButton button;
         public RatingBar ratingBar;
+        public TextView distanceText;
     }
 }
 interface SpotifyPhotoCallback {

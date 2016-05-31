@@ -15,6 +15,16 @@ public class Message {
     Location fromUserLocation;
     String fromUserName, toUserName;
 
+    public Distance getUsersDistance() {
+        return usersDistance;
+    }
+
+    public void setUsersDistance(Distance usersDistance) {
+        this.usersDistance = usersDistance;
+    }
+
+    Distance usersDistance;
+
     public Location getSenderLocation() {
         return senderLocation;
     }

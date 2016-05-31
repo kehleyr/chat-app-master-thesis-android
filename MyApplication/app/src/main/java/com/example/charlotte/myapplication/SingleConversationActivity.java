@@ -50,21 +50,11 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
     private static final String CLIENT_SECRET = "5adf6f19f1bf42298b5e95300f264f3f";
     private static final double AMBIENT_NOISE_SAMPLE_SIZE = 0.1;
     private static final int MY_ACCESS_PERMISSION_CONSTANT = 666;
-    private static final long LOCATION_TIMEOUT_IN_SECONDS = 2;
     private Config playerConfig;
     private GoogleApiClient mGoogleApiClient;
     private ReactiveLocationProvider locationProvider;
     private ListView myList;
 
-    public boolean isAllowLocation() {
-        return allowLocation;
-    }
-
-    public void setAllowLocation(boolean allowLocation) {
-        this.allowLocation = allowLocation;
-    }
-
-    private boolean allowLocation = true;
 
     public String getCurrentSongID() {
         return currentSongID;
@@ -110,7 +100,7 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        locationProvider = new ReactiveLocationProvider(this);
+
         setContentView(R.layout.activity_single_conversation);
         // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //  setSupportActionBar(toolbar);
@@ -213,7 +203,7 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
             message.setSong(MediaPlayingSingleton.getInstance().getCurrentSong());
         }
 
-        determineLocation(new LocationFetchedInteface() {
+        LocationHelper.getInstance().determineLocation(this, getApplicationContext(), new LocationFetchedInteface() {
             @Override
             public void hasFetchedLocation(Location location) {
 
@@ -378,49 +368,6 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
         });
     }
 
-    private void determineLocation(final LocationFetchedInteface locationFetchedInteface) {
-        if (!(GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext())== ConnectionResult.SUCCESS) && isAllowLocation()) {
-            SingleShotLocationProvider.requestSingleUpdate(this,
-                    new SingleShotLocationProvider.LocationCallback() {
-                        @Override
-                        public void onNewLocationAvailable(Location location) {
-                            locationFetchedInteface.hasFetchedLocation(location);
-                            Log.d("Location", "my senderLocation is " + location.getLatitude() + " " + location.getLongitude());
-                        }
-                    });
-
-        }
-        else if (isAllowLocation()) {
-
-            LocationRequest req = LocationRequest.create()
-                    .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-                    .setExpirationDuration(TimeUnit.SECONDS.toMillis(LOCATION_TIMEOUT_IN_SECONDS));
-
-            final Observable<Location> goodEnoughQuicklyOrNothingObservable = locationProvider.getUpdatedLocation(req)
-               /* .filter(new Func1<Location, Boolean>() {
-                    @Override
-                    public Boolean call(Location senderLocation) {
-                        return senderLocation.getAccuracy() < SUFFICIENT_ACCURACY;
-                    }
-                })*/
-                    .timeout(LOCATION_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS, Observable.just((Location) null), AndroidSchedulers.mainThread())
-                    .first()
-                    .observeOn(AndroidSchedulers.mainThread());
-
-
-          Subscription subscription= goodEnoughQuicklyOrNothingObservable.subscribe(new Action1<Location>() {
-                @Override
-                public void call(Location location) {
-                    Log.d("TAG", "senderLocation: " + location.getLatitude() + location.getLongitude());
-
-                    locationFetchedInteface.hasFetchedLocation(location);
-
-
-
-                }
-            });
-        }
-    }
 
     public void playAndResume()
     {
@@ -711,13 +658,13 @@ Log.e("TAG", "on logged out");
                             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
 
-                        allowLocation=true;
+                        LocationHelper.getInstance().setAllowLocation(true);
                         // permission was granted, yay! Do the
                         // contacts-related task you need to do.
 
                     } else {
 
-                        allowLocation=false;
+                      LocationHelper.getInstance().setAllowLocation(false);
                         // permission denied, boo! Disable the
                         // functionality that depends on this permission.
                     }

@@ -14,6 +14,8 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.Retrofit;
 
@@ -29,17 +31,44 @@ public class Application extends android.app.Application {
 
     private static MessagingServerService service;
 
+    public static MySpotifyService getSpotifyService() {
+        return spotifyService;
+    }
+
+    public static void setSpotifyService(MySpotifyService spotifyService) {
+        Application.spotifyService = spotifyService;
+    }
+
+    private static MySpotifyService spotifyService;
+    static String baseURL = "http://10.176.89.145:3000/";
     @Override
     public void onCreate() {
         super.onCreate();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.12:3000/")
+                .baseUrl(baseURL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                ;
 
         service = retrofit.create(MessagingServerService.class);
+
+/*
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+*/
+
+
+        Retrofit spotifyRetrofit = new Retrofit.Builder()
+                .baseUrl("https://api.spotify.com/v1/")
+                .addConverterFactory(GsonConverterFactory.create())
+               // .client(client)
+                .build();
+
+
+        spotifyService=spotifyRetrofit.create(MySpotifyService.class);
+
         SpotifyServiceSingleton.getInstance().initialize();
 
 

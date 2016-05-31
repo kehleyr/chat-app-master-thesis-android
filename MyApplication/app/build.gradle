@@ -38,5 +38,6 @@ dependencies {
     compile 'pl.charmas.android:android-reactive-location:0.9@aar'
     compile 'io.reactivex:rxjava:1.1.5'
     compile 'io.reactivex:rxandroid:0.25.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.2.0'
 }
 apply plugin: 'com.google.gms.google-services'

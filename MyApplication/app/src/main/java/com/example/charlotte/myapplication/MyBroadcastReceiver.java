@@ -45,6 +45,9 @@ import android.util.Log;
              //   MediaPlayingSingleton.getInstance().setIsPlaying(playing);
 
               //  if (MediaPlayingSingleton.getInstance().isPlaying()) {
+
+                Log.d("TAG", "set artist and track: "+artistName+" "+trackName);
+
                     Song song = new Song(artistName, trackName);
                     if (trackId!=null)
                     {
@@ -58,7 +61,7 @@ import android.util.Log;
               //  }
                 // Do something with extracted information...
                 //TODO: add correct action for android media player
-            } else if (action.contains(BroadcastTypes.PLAYBACK_STATE_CHANGED)||action.contains(BroadcastTypes.PLAYBACK_STATE_CHANGED)) {
+            } else if (action.contains(BroadcastTypes.PLAYBACK_STATE_CHANGED)||action.contains(BroadcastTypes.PLAYSTATE_CHANGED)) {
                 boolean playing = intent.getBooleanExtra("playing", false);
                 int positionInMs = intent.getIntExtra("playbackPosition", 0);
                 MediaPlayingSingleton.getInstance().setIsPlaying(playing);

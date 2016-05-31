@@ -1,5 +1,7 @@
 package com.example.charlotte.myapplication;
 
+import android.util.Log;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
@@ -7,6 +9,7 @@ import kaaes.spotify.webapi.android.models.TracksPager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit2.Call;
 
 /**
  * Created by charlotte on 01.05.16.
@@ -63,16 +66,53 @@ public class SpotifyServiceSingleton {
     public void getSpotifyIdForSongData(String artist, String songname, final SpotifyTrackCallback spotifyAPICallBack) {
 
 
-        String queryString = "q?=artist:\"" + artist + "+\"track:\"" + songname + "\"&type=track";
+        final String queryString = "artist:" + artist + " track:" + songname;
+        Log.d("TAG", queryString);
+        String type = "track";
+        Call<TracksPager> call = Application.getSpotifyService().searchTracks(queryString, type);
+
+        call.enqueue(new retrofit2.Callback<TracksPager>() {
+            @Override
+            public void onResponse(Call<TracksPager> call, retrofit2.Response<TracksPager> response) {
+
+                Log.d("TAG", call.request().toString());
+
+                TracksPager tracksPager = response.body();
+
+                String trackId = null;
+                if (tracksPager.tracks.items.size() > 0) {
+
+                    Track track = tracksPager.tracks.items.get(0);
+                    trackId = track.id;
+                    Log.d("TAG", "trackid is: " + trackId);
+
+                }
+                spotifyAPICallBack.trackFetched(trackId);
+
+            }
+
+            @Override
+            public void onFailure(Call<TracksPager> call, Throwable t) {
+
+            }
+        });
+
+
+/*
         spotify.searchTracks(queryString, new Callback<TracksPager>() {
             @Override
             public void success(TracksPager tracksPager, Response response) {
 
+                Log.d("TAG", "query string "+queryString);
+                String trackId=null;
+              //  String trackId=null;
+                if (tracksPager.tracks.items.size()>0) {
 
-                Track track = tracksPager.tracks.items.get(0);
-                String trackId = track.id;
+                    Track track = tracksPager.tracks.items.get(0);
+                    trackId = track.id;
+                    Log.d("TAG", "trackid is: "+trackId);
 
-
+                }
                 spotifyAPICallBack.trackFetched(trackId);
             }
 
@@ -82,8 +122,8 @@ public class SpotifyServiceSingleton {
                 spotifyAPICallBack.trackFetched(null);
 
             }
-        });
+        });*/
+
     }
 
-
-}
+        }

@@ -57,13 +57,15 @@ android:layout_marginRight="20dip"
 
 </RelativeLayout>
 
-    <RatingBar
+    <TextView
+        android:id="@+id/distanceView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/ratingBar"
-        android:numStars="5"
-        android:rating="0"
-        android:stepSize="1"/>
+        android:text="Distanz"
+        android:layout_marginLeft="20dip"
+        android:layout_marginTop="20dip"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
+
 
 
 </LinearLayout>
