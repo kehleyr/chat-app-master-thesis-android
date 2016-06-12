@@ -93,10 +93,9 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
     public View getView(int position, View convertView, ViewGroup parent) {
         // return super.getView(position, convertView, parent);
 
-        if (position==0)
-        {
+        if (position == 0) {
             long difference = System.nanoTime() - startTime;
-            Log.d("TAG", "time between data loading and get view call " + TimeUnit.NANOSECONDS.toMillis(difference)+ "ms");
+            Log.d("TAG", "time between data loading and get view call " + TimeUnit.NANOSECONDS.toMillis(difference) + "ms");
         }
 
         final ViewHolder viewHolder;
@@ -113,10 +112,12 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
             viewHolder = new ViewHolder();
             viewHolder.textViewItem = (TextView) convertView.findViewById(R.id.messageText);
 
-            viewHolder.songImageView= (ImageView) convertView.findViewById(R.id.artistImage);
-            viewHolder.songTitleTextView= (TextView) convertView.findViewById(R.id.textSong);
+            viewHolder.songImageView = (ImageView) convertView.findViewById(R.id.artistImage);
+            viewHolder.songTitleTextView = (TextView) convertView.findViewById(R.id.textSong);
             viewHolder.button = (ImageButton) convertView.findViewById(R.id.button);
-            viewHolder.distanceText = (TextView)convertView.findViewById(R.id.distanceView);
+            viewHolder.distanceText = (TextView) convertView.findViewById(R.id.distanceView);
+            viewHolder.weatherImage=(ImageView) convertView.findViewById(R.id.weather_image);
+            viewHolder.weatherText=(TextView)convertView.findViewById(R.id.weather_text);
 
             // store the holder with the view.
             convertView.setTag(viewHolder);
@@ -128,56 +129,53 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
         }
         final Message message = getItem(position);
-        if (message!=null) {
+        if (message != null) {
 
 
-         //   if (message.getAmbientNoise()!=null)
-         //   {
+            //   if (message.getAmbientNoise()!=null)
+            //   {
 
-                 //   message.setMessageText(message.getMessageText()+message.getAmbientNoise());
-         //       int stars = getStartsForRatingBar(message.getAmbientNoise().decibels);
-           //     viewHolder.ratingBar.setVisibility(View.VISIBLE);
-             //   viewHolder.ratingBar.setRating(stars);
+            //   message.setMessageText(message.getMessageText()+message.getAmbientNoise());
+            //       int stars = getStartsForRatingBar(message.getAmbientNoise().decibels);
+            //     viewHolder.ratingBar.setVisibility(View.VISIBLE);
+            //   viewHolder.ratingBar.setRating(stars);
 //
-           // }
+            // }
 
-           // else{
+            // else{
 
 
-          //  }
+            //  }
             //message from other user, better check something else! TODO
-            String displayName="Name";
+            String displayName = "Name";
             if (message.getFromUserDisplayName() != null) {
 
-                displayName= message.getFromUserDisplayName();
+                displayName = message.getFromUserDisplayName();
             }
 
-            viewHolder.textViewItem.setText(displayName+ " schrieb: " + message.getMessageText());
+            viewHolder.textViewItem.setText(displayName + " schrieb: " + message.getMessageText());
 
             RelativeLayout musicView = (RelativeLayout) convertView.findViewById(R.id.music_view);
 
-            if (message.getSong()!=null)
-            {
-                final Song song=message.getSong();
+            if (message.getSong() != null) {
+                final Song song = message.getSong();
                 viewHolder.songTitleTextView.setText(song.getArtist() + " - " + song.getSongname());
 
 
-                if (song.getSpotifyID()!=null)
-                {
-                    Log.d("TAG", "spotify song id: "+song.getSpotifyID());
+                if (song.getSpotifyID() != null) {
+                    Log.d("TAG", "spotify song id: " + song.getSpotifyID());
 
-                    final String spotifyId=song.getSpotifyID();
+                    final String spotifyId = song.getSpotifyID();
                     showPlayButtonAndSpotifyImage(viewHolder, spotifyId);
 
 
-                }
-                else {
+                } else {
 
                     SpotifyServiceSingleton.getInstance().getSpotifyIdForSongData(song.getArtist(), song.getSongname(), new SpotifyTrackCallback() {
                         @Override
                         public void trackFetched(String trackId) {
 
-                            if (trackId!=null) {
+                            if (trackId != null) {
                                 Log.d("TAG", "track id");
                                 showPlayButtonAndSpotifyImage(viewHolder, trackId);
 
@@ -193,8 +191,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
                 musicView.setVisibility(View.VISIBLE);
 
 
-            }
-            else {
+            } else {
 
 
                 musicView.setVisibility(View.GONE);
@@ -204,24 +201,33 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
             }
 
 
+            //TODO: toggle layout visibility
 
-            if (message.getUsersDistance()!=null)
+            if (message.getWeatherJSON()!=null)
             {
+                viewHolder.weatherText.setText("Temperatur: " + message.getWeatherJSON().getTemperature());
+                ImageLoader imageLoader = ImageLoader.getInstance();
+                String iconString=message.getWeatherJSON().getWeather().getIcon();
+                imageLoader.displayImage(WeatherHelper.getInstance().getURLForIconString(iconString), viewHolder.weatherImage);
 
-                float distance = message.getUsersDistance().getDistanceValue();
-                viewHolder.distanceText.setText(""+distance);
 
             }
-            else  if (message.getSenderLocation()!=null){
+
+            if (message.getUsersDistance() != null) {
+
+                float distance = message.getUsersDistance().getDistanceValue();
+                viewHolder.distanceText.setText("" + distance);
+
+            } else if (message.getSenderLocation() != null) {
 
 
-                final Location otherUserDistance=message.getSenderLocation();
+                final GeoLocation otherUserDistance = message.getSenderLocation();
 
                 LocationHelper.getInstance().determineLocation(getContext(), getContext().getApplicationContext(), new LocationFetchedInteface() {
                     @Override
                     public void hasFetchedLocation(Location location) {
 
-                        if (location!=null) {
+                        if (location != null) {
                             Log.d("TAG", "my own locatin: " + location.toString());
                             float[] res = new float[1];
                             Location.distanceBetween(otherUserDistance.getLatitude(), otherUserDistance.getLongitude(), location.getLatitude(), location.getLongitude(), res);
@@ -230,11 +236,28 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
                             Log.d("TAG", "my distance in meters: " + distanceInMeters);
                             viewHolder.distanceText.setText("Distanz: " + distanceInMeters);
 
-                            //TODO: update with distance on server
 
-                        }
+                            //call distance update function
 
-                        else {
+                            Call<Result> call = Application.getService().updateMessageDistance(message.get_id(), distanceInMeters);
+                            Log.d("TAG", "initialize adapter again");
+
+                            call.enqueue(new Callback<Result>() {
+                                @Override
+                                public void onResponse(Call<Result> call, Response<Result> response) {
+                                    Log.d("TAG", "message updated");
+                                }
+
+                                @Override
+                                public void onFailure(Call<Result> call, Throwable t) {
+
+                                    Log.e("TAG", "failure: " + t.getCause() + t.getMessage());
+
+                                }
+                            });
+
+
+                        } else {
 
                             Log.d("TAG", "location is null here, why?");
                         }
@@ -242,14 +265,12 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
                     }
                 });
 
+
             }
+        }
 
+            return convertView;
 
-
-
-    }
-
-        return convertView;
 
 
     }
@@ -305,6 +326,8 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         TextView textViewItem;
         TextView songTitleTextView;
         ImageView songImageView;
+        ImageView weatherImage;
+        TextView weatherText;
         public ImageButton button;
         public RatingBar ratingBar;
         public TextView distanceText;

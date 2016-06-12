@@ -15,6 +15,26 @@ public class Message {
     Location fromUserLocation;
     String fromUserName, toUserName;
 
+    public WeatherJSON getWeatherJSON() {
+        return weatherJSON;
+    }
+
+    public void setWeatherJSON(WeatherJSON weatherJSON) {
+        this.weatherJSON = weatherJSON;
+    }
+
+    WeatherJSON weatherJSON;
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+
+    String _id;
+
     public Distance getUsersDistance() {
         return usersDistance;
     }
@@ -25,15 +45,15 @@ public class Message {
 
     Distance usersDistance;
 
-    public Location getSenderLocation() {
+    public GeoLocation getSenderLocation() {
         return senderLocation;
     }
 
-    public void setSenderLocation(Location senderLocation) {
+    public void setSenderLocation(GeoLocation senderLocation) {
         this.senderLocation = senderLocation;
     }
 
-    Location senderLocation;
+    GeoLocation senderLocation;
 
     public AmbientNoise getAmbientNoise() {
         return ambientNoise;

@@ -31,6 +31,12 @@ public class Application extends android.app.Application {
 
     private static MessagingServerService service;
 
+    public static OpenWeatherService getWeatherService() {
+        return weatherService;
+    }
+
+    private static OpenWeatherService weatherService;
+
     public static MySpotifyService getSpotifyService() {
         return spotifyService;
     }
@@ -40,7 +46,7 @@ public class Application extends android.app.Application {
     }
 
     private static MySpotifyService spotifyService;
-    static String baseURL = "http://10.176.89.145:3000/";
+    static String baseURL = "http://192.168.1.12:3000/";
     @Override
     public void onCreate() {
         super.onCreate();
@@ -68,6 +74,14 @@ public class Application extends android.app.Application {
 
 
         spotifyService=spotifyRetrofit.create(MySpotifyService.class);
+
+        Retrofit weatherRetrofit = new Retrofit.Builder()
+                .baseUrl("http://api.openweathermap.org/data/2.5/")
+                .addConverterFactory(GsonConverterFactory.create())
+                        // .client(client)
+                .build();
+
+        weatherService=weatherRetrofit.create(OpenWeatherService.class);
 
         SpotifyServiceSingleton.getInstance().initialize();
 

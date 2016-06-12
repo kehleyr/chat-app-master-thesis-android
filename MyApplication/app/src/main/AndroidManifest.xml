@@ -28,6 +28,9 @@
         android:name=".Application"
         tools:replace="icon, theme, label"
    >
+        <service android:name="com.google.android.gms.measurement.AppMeasurementService"
+            android:enabled="true"
+            android:exported="false"/>
 
 
         <receiver

@@ -203,42 +203,50 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
             message.setSong(MediaPlayingSingleton.getInstance().getCurrentSong());
         }
 
+
+
         LocationHelper.getInstance().determineLocation(this, getApplicationContext(), new LocationFetchedInteface() {
             @Override
             public void hasFetchedLocation(Location location) {
 
 
+
+
+
                 if (location!=null)
                 {
 
-                    message.setSenderLocation(location);
+                    //use coordinates
+
+                    GeoLocation geoLocation=new GeoLocation(location.getLatitude(), location.getLongitude());
+                    message.setSenderLocation(geoLocation);
+                    //make asynchronous call to weather api through service
+                    WeatherHelper.getInstance().getWeather(geoLocation, new WeatherFetchedCallback() {
+                        @Override
+                        public void onWeatherFetched(WeatherJSON weatherJSON) {
+                            //set weather data in message
+
+                            if (weatherJSON!=null) {
+                                message.setWeatherJSON(weatherJSON);
+                            }
+                            //send message to server after callback
+                            sendMessageToServer(message);
+
+                        }
+                    });
+
+
                 }
+                else {
 
-                sendMessageToServer(message);
-
-
-
+                    sendMessageToServer(message);
+                }
 
 
             }
         });
 
         //TODO: user another senderLocation if not accurate enough?
-/*
-
-        Cursor ambientNoiseData = getContentResolver().query(Provider.AmbientNoise_Data.CONTENT_URI, new String[]{"timestamp", "double_decibels", "is_silent"}, null, null, "timestamp DESC");
-
-
-        if (ambientNoiseData!=null) {
-            int isSilentIndex =ambientNoiseData.getColumnIndex("is_silent");
-            int decibelsIndex=ambientNoiseData.getColumnIndex("double_decibels");
-            ambientNoiseData.moveToFirst();
-
-            double decibelsCount=ambientNoiseData.getDouble(decibelsIndex);
-            boolean isSilent=ambientNoiseData.getInt(isSilentIndex)>0;
-
-            Log.d("TAG", "decibels: "+decibelsCount+" is silent: "+isSilent);
-        }*/
 
 
         boolean useDecibels=false;
@@ -493,10 +501,6 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
 
     public void getNewAccessTokenWithRefreshToken(String refreshToken)
     {
-
-
-
-
         Call<RefreshAndAccessToken> call =Application.getService().getAccessTokenForRefreshToken(CLIENT_ID, CLIENT_SECRET,refreshToken);
 
 

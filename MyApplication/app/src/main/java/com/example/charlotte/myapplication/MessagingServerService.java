@@ -43,4 +43,6 @@ public interface MessagingServerService {
     Call<RefreshAndAccessToken> getRefreshAndAccessTokens(@Query("code") String code, @Query("state") String state);
 
 
+    @GET("message/updateMessageDistance")
+    Call<Result> updateMessageDistance(@Query("messageId") String messageId, @Query("usersDistance") float userDistance);
 }
