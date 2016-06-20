@@ -97,32 +97,26 @@ public class SpotifyServiceSingleton {
             }
         });
 
+    }
 
-/*
-        spotify.searchTracks(queryString, new Callback<TracksPager>() {
+
+    public void updateSpotifyIDForMessage(String messageId, String spotifyID)
+    {
+        Call<Result> call = Application.getService().updateSpotifySongId(messageId, spotifyID);
+        call.enqueue(new retrofit2.Callback<Result>() {
             @Override
-            public void success(TracksPager tracksPager, Response response) {
+            public void onResponse(Call<Result> call, retrofit2.Response<Result> response) {
 
-                Log.d("TAG", "query string "+queryString);
-                String trackId=null;
-              //  String trackId=null;
-                if (tracksPager.tracks.items.size()>0) {
-
-                    Track track = tracksPager.tracks.items.get(0);
-                    trackId = track.id;
-                    Log.d("TAG", "trackid is: "+trackId);
-
-                }
-                spotifyAPICallBack.trackFetched(trackId);
             }
 
             @Override
-            public void failure(RetrofitError error) {
+            public void onFailure(Call<Result> call, Throwable t) {
 
-                spotifyAPICallBack.trackFetched(null);
 
+                Log.e("spotifyService", t.getMessage()+t.getCause());
             }
-        });*/
+        });
+
 
     }
 

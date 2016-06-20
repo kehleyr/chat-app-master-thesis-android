@@ -1,13 +1,19 @@
 package com.example.charlotte.myapplication;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -18,7 +24,7 @@ import android.view.ViewGroup;
  * Use the {@link ChatSettingsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ChatSettingsFragment extends PreferenceFragment {
+public class ChatSettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -62,6 +68,7 @@ public class ChatSettingsFragment extends PreferenceFragment {
 
         addPreferencesFromResource(R.xml.preferences);
 
+
     }
 
     /*
@@ -94,6 +101,46 @@ public class ChatSettingsFragment extends PreferenceFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        if (key.equals(getString(R.string.edit_name_key)) || key.equals(getString(R.string.edit_display_name_key)))
+        {
+
+            String userName= sharedPreferences.getString(getString(R.string.edit_name_key), "");
+            String displayName = sharedPreferences.getString(getString(R.string.edit_display_name_key), "");
+            UserSingleton.getInstance().setUser(new User(userName, displayName));
+
+            Call<Result> call = Application.getService().updateDisplayName(UserSingleton.getInstance().getCurrentUser().getUsername(), displayName);
+            call.enqueue(new Callback<Result>() {
+                @Override
+                public void onResponse(Call<Result> call, Response<Result> response) {
+                    Log.d("TAG", "displayName updated");
+                }
+
+                @Override
+                public void onFailure(Call<Result> call, Throwable t) {
+
+                    Log.e("TAG", "could not update display name: " + t.getCause() + t.getMessage());
+                }
+            });
+
+        }
+
     }
 
     /**

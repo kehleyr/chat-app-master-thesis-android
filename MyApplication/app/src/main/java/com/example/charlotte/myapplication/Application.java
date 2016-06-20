@@ -5,6 +5,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -24,6 +26,8 @@ import retrofit2.Retrofit;
  */
 public class Application extends android.app.Application {
 
+
+    private static boolean inSingleConversationActivity;
 
     public static MessagingServerService getService() {
         return service;
@@ -47,13 +51,25 @@ public class Application extends android.app.Application {
 
     private static MySpotifyService spotifyService;
     static String baseURL = "http://192.168.1.12:3000/";
+
+    public static boolean isInSingleConversationActivity() {
+        return inSingleConversationActivity;
+    }
+
+    public static void setInSingleConversationActivity(boolean inSingleConversationActivity) {
+        Application.inSingleConversationActivity = inSingleConversationActivity;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .create();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseURL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
+
                 .build()
                ;
 

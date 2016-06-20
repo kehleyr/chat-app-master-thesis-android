@@ -10,5 +10,5 @@ import retrofit2.http.Query;
 public interface OpenWeatherService {
 
     @GET("weather")
-    Call<WeatherJSON> getWeather(@Query("lat") double lat, @Query("long") double lon, @Query("appid") String appId);
+    Call<WeatherJSON> getWeather(@Query("lat") double lat, @Query("lon") double lon, @Query("appid") String appId, @Query("units") String units);
 }

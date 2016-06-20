@@ -5,13 +5,18 @@ package com.example.charlotte.myapplication;
  */
 public class Distance {
 
+    public Distance(float distanceInMeters) {
+        this.distanceValue=distanceInMeters;
+
+    }
+
     public float getDistanceValue() {
         return distanceValue;
     }
 
-    public void setDistanceValue(long distanceValue) {
+    public void setDistanceValue(float distanceValue) {
         this.distanceValue = distanceValue;
     }
 
-    private long distanceValue;
+    private float distanceValue;
 }

@@ -1,14 +1,18 @@
 package com.example.charlotte.myapplication;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -54,6 +58,7 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
     private GoogleApiClient mGoogleApiClient;
     private ReactiveLocationProvider locationProvider;
     private ListView myList;
+    private BroadcastReceiver mBroadcastReceiver;
 
 
     public String getCurrentSongID() {
@@ -110,7 +115,13 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
             //TODO: what happens if permission is not granted?
         }
 
-
+      mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d("TAG", "broadcast received");
+                updateMessages();
+            }
+        };
 
 
 
@@ -145,7 +156,14 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
             }
         });
 
-        loginToSpotify();
+        //check if user has enabled spotify through shared preferences...can be annoying otherwise
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean hasSpotify  =sharedPref.getBoolean(getString(R.string.spotify_enabled_string), false);
+
+if (hasSpotify) {
+    loginToSpotify();
+}
         /*
 
         Intent aware = new Intent(this, Aware.class);
@@ -220,11 +238,11 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
 
                     GeoLocation geoLocation=new GeoLocation(location.getLatitude(), location.getLongitude());
                     message.setSenderLocation(geoLocation);
-                    //make asynchronous call to weather api through service
+                    //make asynchronous call to weatherList api through service
                     WeatherHelper.getInstance().getWeather(geoLocation, new WeatherFetchedCallback() {
                         @Override
                         public void onWeatherFetched(WeatherJSON weatherJSON) {
-                            //set weather data in message
+                            //set weatherList data in message
 
                             if (weatherJSON!=null) {
                                 message.setWeatherJSON(weatherJSON);
@@ -354,6 +372,13 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
 
     }
 
+    public void updateMessages()
+    {
+
+        ((ConversationListAdapter) myList.getAdapter()).initializeAdapter();
+
+    }
+
     private void sendMessageToServer(Message message) {
         Call call = Application.getService().writeMessagePost(message);
         call.enqueue(new Callback() {
@@ -395,6 +420,7 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
 
     public void playSong(String songID)
     {
+        if (mPlayer==null) return;
 
         if (getCurrentSongID()==null|| (!getCurrentSongID().equals(songID))) {
 
@@ -650,6 +676,23 @@ Log.e("TAG", "on logged out");
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Application.setInSingleConversationActivity(false);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Application.setInSingleConversationActivity(true);
+
+        IntentFilter filter=new IntentFilter("updateConversation");
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
     }
 
     @Override

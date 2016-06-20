@@ -1,6 +1,8 @@
 package com.example.charlotte.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
@@ -10,10 +12,31 @@ import com.google.android.gms.gcm.GcmListenerService;
  */
 public class MyGcmListenerService extends GcmListenerService {
 
+
+    private LocalBroadcastManager mBroadcaster;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mBroadcaster = LocalBroadcastManager.getInstance(this);
+    }
+
     @Override
     public void onMessageReceived(String from, Bundle data) {
         super.onMessageReceived(from, data);
 
-        Log.d("TAG", "received push");
+        Log.d("TAG", "received push "+data);
+
+        if (Application.isInSingleConversationActivity())
+        {
+            Intent i = new Intent("updateConversation");
+            i.putExtra("data", data);
+            mBroadcaster.sendBroadcast(i);
+        }
+
+
+
+
+
     }
 }

@@ -83,7 +83,7 @@ import retrofit2.Response;
  * An action should be an operation performed on the current contents of the window,
  * for example enabling or disabling a data overlay on top of the current content.</p>
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -153,7 +153,11 @@ public class MainActivity extends AppCompatActivity {
             selectItem(0);
         }
 
-        UserSingleton.getInstance().setUser(new User("userBla", "ClubMate"));
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String userName = sharedPref.getString(getString(R.string.edit_name_key), "");
+        String displayName=sharedPref.getString(getString(R.string.edit_display_name_key), "");
+
+        UserSingleton.getInstance().setUser(new User(userName, displayName));
 
 
 
@@ -193,6 +197,8 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
 
     /* The click listner for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -279,4 +285,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
 }

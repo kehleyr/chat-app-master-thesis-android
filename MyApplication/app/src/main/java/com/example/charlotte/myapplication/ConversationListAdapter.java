@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +34,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
     private static final int DB_MIN_VALUE=0;
     private static final int DB_MAX_VALUE=120;
     private long startTime;
+    public static final long MAX_HOURS_BETWEEN_DISTANCES=3;
 
     public ConversationListAdapter(Context context, int resource, String fromUser, String toUser) {
         super(context, resource);
@@ -62,22 +64,26 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
                 List<Message> messages = response.body();
 
-                Log.d("TAG", "on response called list isze is " + messages.size());
+                if (messages!=null) {
+                    Log.d("TAG", "on response called list isze is " + messages.size());
 
-                for (Message message : messages) {
-                    Log.d("TAG", message.toString());
+                    for (Message message : messages) {
+                        Log.d("TAG", message.toString());
 
+                    }
+                    clear();
+                    addAll(messages);
+                    Log.d("TAG", "notify dataset changed");
+                    notifyDataSetChanged();
                 }
-                clear();
-                addAll(messages);
-                Log.d("TAG", "notify dataset changed");
-                notifyDataSetChanged();
 
             }
 
             @Override
             public void onFailure(Call<List<Message>> call, Throwable t) {
 
+
+                Log.e("Conversation", t.getMessage()+t.getCause());
             }
 
 
@@ -88,6 +94,25 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
     }
 
+
+    public boolean timeoutReachedForDistanceComputation(Date messageDate)
+    {
+
+        if (messageDate==null)
+        {
+            Log.e("TAG", "message date is null");
+            return true;
+
+        }
+
+        Log.d("TAG", "hurray message date is not null!");
+        Date date = new Date();
+        long diff = date.getTime()-messageDate.getTime();
+        long hours = TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS);
+
+        return hours > MAX_HOURS_BETWEEN_DISTANCES;
+
+    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -203,76 +228,94 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
             //TODO: toggle layout visibility
 
-            if (message.getWeatherJSON()!=null)
-            {
-                viewHolder.weatherText.setText("Temperatur: " + message.getWeatherJSON().getTemperature());
+            if (message.getWeatherJSON() != null) {
+                viewHolder.weatherText.setText("Temperatur: " + message.getWeatherJSON().getMain().getTemp() + " °");
                 ImageLoader imageLoader = ImageLoader.getInstance();
-                String iconString=message.getWeatherJSON().getWeather().getIcon();
-                imageLoader.displayImage(WeatherHelper.getInstance().getURLForIconString(iconString), viewHolder.weatherImage);
-
+                if (message.getWeatherJSON().getWeatherList() != null) {
+                    String iconString = message.getWeatherJSON().getWeatherList().get(0).getIcon();
+                    imageLoader.displayImage(WeatherHelper.getInstance().getURLForIconString(iconString), viewHolder.weatherImage);
+                }
 
             }
-
+            Log.d("TAG", "from User: "+message.getFromUser());
+            Log.d("TAG", "to User: "+UserSingleton.getInstance().getCurrentUser().getUsername());
             if (message.getUsersDistance() != null) {
 
                 float distance = message.getUsersDistance().getDistanceValue();
-                viewHolder.distanceText.setText("" + distance);
-
-            } else if (message.getSenderLocation() != null) {
-
-
-                final GeoLocation otherUserDistance = message.getSenderLocation();
-
-                LocationHelper.getInstance().determineLocation(getContext(), getContext().getApplicationContext(), new LocationFetchedInteface() {
-                    @Override
-                    public void hasFetchedLocation(Location location) {
-
-                        if (location != null) {
-                            Log.d("TAG", "my own locatin: " + location.toString());
-                            float[] res = new float[1];
-                            Location.distanceBetween(otherUserDistance.getLatitude(), otherUserDistance.getLongitude(), location.getLatitude(), location.getLongitude(), res);
-                            float distanceInMeters = res[0];
-
-                            Log.d("TAG", "my distance in meters: " + distanceInMeters);
-                            viewHolder.distanceText.setText("Distanz: " + distanceInMeters);
-
-
-                            //call distance update function
-
-                            Call<Result> call = Application.getService().updateMessageDistance(message.get_id(), distanceInMeters);
-                            Log.d("TAG", "initialize adapter again");
-
-                            call.enqueue(new Callback<Result>() {
-                                @Override
-                                public void onResponse(Call<Result> call, Response<Result> response) {
-                                    Log.d("TAG", "message updated");
-                                }
-
-                                @Override
-                                public void onFailure(Call<Result> call, Throwable t) {
-
-                                    Log.e("TAG", "failure: " + t.getCause() + t.getMessage());
-
-                                }
-                            });
-
-
-                        } else {
-
-                            Log.d("TAG", "location is null here, why?");
-                        }
-
-                    }
-                });
-
+                viewHolder.distanceText.setText("Distanz: " + distance);
 
             }
-        }
+            else if (message.getSenderLocation() != null && (!(message.getFromUser().equals(UserSingleton.getInstance().getCurrentUser().getUsername())))) {
+
+
+
+
+                    final GeoLocation otherUserDistance = message.getSenderLocation();
+
+                    LocationHelper.getInstance().determineLocation(getContext(), getContext().getApplicationContext(), new LocationFetchedInteface() {
+                        @Override
+                        public void hasFetchedLocation(Location location) {
+
+                            if (location != null) {
+                                Log.d("TAG", "my own locatin: " + location.toString());
+                                float[] res = new float[1];
+                                Location.distanceBetween(otherUserDistance.getLatitude(), otherUserDistance.getLongitude(), location.getLatitude(), location.getLongitude(), res);
+                                float distanceInMeters = res[0];
+
+                                Log.d("TAG", "my distance in meters: " + distanceInMeters);
+                                viewHolder.distanceText.setText("Distanz: " + distanceInMeters);
+
+                                //call distance update function
+                                Log.d("TAG", "not sender of message, updating distance");
+
+                                //if timeout for distance computation has not yet been reached
+                                if (!timeoutReachedForDistanceComputation(message.getTimestamp())) {
+                                    updateUsersDistance(distanceInMeters, message);
+
+                                }
+
+                            } else {
+
+                                Log.d("TAG", "location is null here, why?");
+                            }
+
+                        }
+                    });
+
+
+                }
+            else {
+
+                viewHolder.distanceText.setText("Keine Distanz");
+
+            }
+            }
+
 
             return convertView;
 
 
 
+    }
+
+    private void updateUsersDistance(float distanceInMeters, Message message) {
+
+        Call<Result> call = Application.getService().updateMessageDistance(message.get_id(), distanceInMeters);
+        Log.d("TAG", "initialize adapter again");
+
+        call.enqueue(new Callback<Result>() {
+            @Override
+            public void onResponse(Call<Result> call, Response<Result> response) {
+                Log.d("TAG", "message updated");
+            }
+
+            @Override
+            public void onFailure(Call<Result> call, Throwable t) {
+
+                Log.e("TAG", "failure: " + t.getCause() + t.getMessage());
+
+            }
+        });
     }
 
     private void showPlayButtonAndSpotifyImage(final ViewHolder viewHolder, final String spotifyId) {

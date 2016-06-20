@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <CheckBoxPreference
-        android:key="pref_key_auto_delete"
-        android:summary="@string/push_notifications_summary"
-        android:title="@string/push_notifictaions"
+        android:key="@string/spotify_enabled_string"
+        android:summary="@string/spotify_summary"
+        android:title="@string/spotify_title"
         android:defaultValue="false" />
 <EditTextPreference
-    android:key="edit_name"
+    android:key="@string/edit_name_key"
     android:summary="@string/edit_name_summary"
-    android:title="@string/edit_name">
+    android:title="@string/edit_name"/>
 
 
-</EditTextPreference>
+<EditTextPreference
+android:key="@string/edit_display_name_key"
+    android:summary="Edit display name"
+    android:title="Edit display name"
+
+/>
+
 </PreferenceScreen>

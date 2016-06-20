@@ -45,4 +45,11 @@ public interface MessagingServerService {
 
     @GET("message/updateMessageDistance")
     Call<Result> updateMessageDistance(@Query("messageId") String messageId, @Query("usersDistance") float userDistance);
+
+
+    @GET("users/updateDisplayName")
+    Call<Result> updateDisplayName(@Query("username") String username, @Query("displayName") String displayName);
+
+    @GET("message/updateSpotifySongId")
+    Call<Result> updateSpotifySongId(@Query("messageId") String messageId, @Query("spotifyID") String spotifyId);
 }

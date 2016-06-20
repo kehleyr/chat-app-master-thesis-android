@@ -10,7 +10,7 @@ import java.util.Date;
 public class Message {
 
 
-    Date timestamp;
+    Date date;
     private String fromDisplayName;
     Location fromUserLocation;
     String fromUserName, toUserName;
@@ -85,11 +85,11 @@ public class Message {
 
 
     public Date getTimestamp() {
-        return timestamp;
+        return date;
     }
 
     public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
+        this.date = timestamp;
     }
 
     public String getFromUser() {

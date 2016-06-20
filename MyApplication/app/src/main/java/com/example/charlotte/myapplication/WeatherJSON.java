@@ -1,5 +1,7 @@
 package com.example.charlotte.myapplication;
 
+import java.util.List;
+
 /**
  * Created by charlotte on 31.05.16.
  */
@@ -16,20 +18,22 @@ public class WeatherJSON {
 
     Main main;
 
-    public Weather getWeather() {
+    public List<Weather> getWeatherList() {
         return weather;
     }
 
-    public void setWeather(Weather weather) {
-        this.weather = weather;
+    public void setWeatherList(List<Weather> weatherList) {
+        this.weather = weatherList;
     }
 
-    Weather weather;
+    List<Weather> weather;
 
     public Double getTemperature(){
 
         return getMain().getTemp();
     }
+
+
 
 }
 
