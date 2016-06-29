@@ -4,6 +4,8 @@ package com.example.charlotte.myapplication;
  * Created by charlotte on 01.05.16.
  */
 public class UserSingleton {
+    private String group;
+
     public User getCurrentUser() {
         return user;
     }
@@ -33,4 +35,11 @@ public class UserSingleton {
     }
 
 
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
 }

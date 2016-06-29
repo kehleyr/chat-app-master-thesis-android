@@ -1,7 +1,9 @@
 package com.example.charlotte.myapplication;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.location.Location;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,14 +11,18 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.location.DetectedActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
@@ -40,6 +46,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         super(context, resource);
         this.fromUser = fromUser;
         this.toUser = toUser;
+
         initializeAdapter();
         Log.d("TAG", "new conversation list adapter");
 
@@ -114,9 +121,12 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
     }
 
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // return super.getView(position, convertView, parent);
+
+
 
         if (position == 0) {
             long difference = System.nanoTime() - startTime;
@@ -136,49 +146,54 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
             // well set up the ViewHolder
             viewHolder = new ViewHolder();
             viewHolder.textViewItem = (TextView) convertView.findViewById(R.id.messageText);
-
             viewHolder.songImageView = (ImageView) convertView.findViewById(R.id.artistImage);
             viewHolder.songTitleTextView = (TextView) convertView.findViewById(R.id.textSong);
             viewHolder.button = (ImageButton) convertView.findViewById(R.id.button);
-            viewHolder.distanceText = (TextView) convertView.findViewById(R.id.distanceView);
+            viewHolder.distanceViewLayout = (LinearLayout) convertView.findViewById(R.id.distance_view_layout);
+            viewHolder.distanceView = (DistanceView) convertView.findViewById(R.id.distanceView);
             viewHolder.weatherImage=(ImageView) convertView.findViewById(R.id.weather_image);
             viewHolder.weatherText=(TextView)convertView.findViewById(R.id.weather_text);
-
+            viewHolder.spotifyLine = (View)convertView.findViewById(R.id.spotify_divider);
+            viewHolder.messageSender= (TextView) convertView.findViewById(R.id.sender_name);
+            viewHolder.activityImage= (ImageView) convertView.findViewById(R.id.activity_image);
+            viewHolder.weatherView = (RelativeLayout) convertView.findViewById(R.id.weather_layout);
+            viewHolder.messageDate= (TextView) convertView.findViewById(R.id.message_date);
+            viewHolder.messageCardView = (CardView) convertView.findViewById(R.id.message_card_view);
             // store the holder with the view.
             convertView.setTag(viewHolder);
 
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
             Log.d("TAG", "convert view is not null");
-
-
         }
+
         final Message message = getItem(position);
         if (message != null) {
+            boolean fromOtherUser = (!(message.getFromUser().equals(UserSingleton.getInstance().getCurrentUser().getUsername())));
+
+            if (fromOtherUser)
+            {
+                viewHolder.messageCardView.setCardBackgroundColor(R.color.colorAccent);
+            }
 
 
-            //   if (message.getAmbientNoise()!=null)
-            //   {
-
-            //   message.setMessageText(message.getMessageText()+message.getAmbientNoise());
-            //       int stars = getStartsForRatingBar(message.getAmbientNoise().decibels);
-            //     viewHolder.ratingBar.setVisibility(View.VISIBLE);
-            //   viewHolder.ratingBar.setRating(stars);
-//
-            // }
-
-            // else{
-
-
-            //  }
-            //message from other user, better check something else! TODO
             String displayName = "Name";
             if (message.getFromUserDisplayName() != null) {
 
                 displayName = message.getFromUserDisplayName();
+                viewHolder.messageSender.setText(displayName);
+
             }
 
-            viewHolder.textViewItem.setText(displayName + " schrieb: " + message.getMessageText());
+
+            viewHolder.textViewItem.setText(message.getMessageText());
+
+            if (message.getTimestamp()!=null)
+            {
+
+                SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yy hh:mm", Locale.GERMANY);
+                viewHolder.messageDate.setText(formatter.format(message.getTimestamp()));
+            }
 
             RelativeLayout musicView = (RelativeLayout) convertView.findViewById(R.id.music_view);
 
@@ -214,42 +229,46 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
 
                 musicView.setVisibility(View.VISIBLE);
-
-
+                viewHolder.spotifyLine.setVisibility(View.VISIBLE);
             } else {
-
-
                 musicView.setVisibility(View.GONE);
                 viewHolder.button.setVisibility(View.GONE);
-
-
+                viewHolder.spotifyLine.setVisibility(View.GONE);
             }
 
 
-            //TODO: toggle layout visibility
-
             if (message.getWeatherJSON() != null) {
+                viewHolder.weatherView.setVisibility(View.VISIBLE);
                 viewHolder.weatherText.setText("Temperatur: " + message.getWeatherJSON().getMain().getTemp() + " °");
                 ImageLoader imageLoader = ImageLoader.getInstance();
                 if (message.getWeatherJSON().getWeatherList() != null) {
                     String iconString = message.getWeatherJSON().getWeatherList().get(0).getIcon();
+                    //TODO: download and save icon
                     imageLoader.displayImage(WeatherHelper.getInstance().getURLForIconString(iconString), viewHolder.weatherImage);
                 }
 
             }
-            Log.d("TAG", "from User: "+message.getFromUser());
-            Log.d("TAG", "to User: "+UserSingleton.getInstance().getCurrentUser().getUsername());
+            else {
+
+                viewHolder.weatherView.setVisibility(View.GONE);
+            }
+
+            if (message.getActivityValue()>=0)
+            {
+                viewHolder.activityImage.setImageDrawable(getContext().getResources().getDrawable(matchActivityTypesToDrawableRes(message.getActivityValue())));
+            }
+
+
             if (message.getUsersDistance() != null) {
 
                 float distance = message.getUsersDistance().getDistanceValue();
-                viewHolder.distanceText.setText("Distanz: " + distance);
+                //TODO: format correctly
+                viewHolder.distanceView.setDistanceAnnotation(""+distance+ " m");
+                viewHolder.distanceView.setDistanceFraction(LocationHelper.getInstance().computeDistanceFractionForView(distance));
+                viewHolder.distanceViewLayout.setVisibility(View.VISIBLE);
 
             }
-            else if (message.getSenderLocation() != null && (!(message.getFromUser().equals(UserSingleton.getInstance().getCurrentUser().getUsername())))) {
-
-
-
-
+            else if (message.getSenderLocation() != null && fromOtherUser) {
                     final GeoLocation otherUserDistance = message.getSenderLocation();
 
                     LocationHelper.getInstance().determineLocation(getContext(), getContext().getApplicationContext(), new LocationFetchedInteface() {
@@ -263,7 +282,9 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
                                 float distanceInMeters = res[0];
 
                                 Log.d("TAG", "my distance in meters: " + distanceInMeters);
-                                viewHolder.distanceText.setText("Distanz: " + distanceInMeters);
+                                viewHolder.distanceView.setDistanceAnnotation(""+distanceInMeters+ " m");
+                                viewHolder.distanceView.setDistanceFraction(LocationHelper.getInstance().computeDistanceFractionForView(distanceInMeters));
+                                viewHolder.distanceViewLayout.setVisibility(View.VISIBLE);
 
                                 //call distance update function
                                 Log.d("TAG", "not sender of message, updating distance");
@@ -276,6 +297,8 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
                             } else {
 
+                                viewHolder.distanceViewLayout.setVisibility(View.GONE);
+
                                 Log.d("TAG", "location is null here, why?");
                             }
 
@@ -286,7 +309,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
                 }
             else {
 
-                viewHolder.distanceText.setText("Keine Distanz");
+                viewHolder.distanceViewLayout.setVisibility(View.GONE);
 
             }
             }
@@ -294,7 +317,24 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
             return convertView;
 
+    }
 
+
+    public int matchActivityTypesToDrawableRes(int activityType)
+    {
+
+        switch (activityType){
+            case DetectedActivity.IN_VEHICLE: return R.drawable.car_icon;
+            case DetectedActivity.ON_BICYCLE: return R.drawable.bicycle;
+            case DetectedActivity.ON_FOOT: return R.drawable.walking;
+            case DetectedActivity.WALKING: return  R.drawable.walking;
+            case DetectedActivity.RUNNING: return  R.drawable.running;
+            case DetectedActivity.STILL: return R.drawable.sitting;
+            case DetectedActivity.TILTING: return R.drawable.tilting;
+            case DetectedActivity.UNKNOWN: return R.drawable.unknown;
+            default: return R.drawable.unknown;
+
+        }
 
     }
 
@@ -371,9 +411,16 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         ImageView songImageView;
         ImageView weatherImage;
         TextView weatherText;
+        TextView messageSender;
+        TextView messageDate;
         public ImageButton button;
         public RatingBar ratingBar;
-        public TextView distanceText;
+        public LinearLayout distanceViewLayout;
+        public View spotifyLine;
+        ImageView activityImage;
+        public DistanceView distanceView;
+        public RelativeLayout weatherView;
+        public CardView messageCardView;
     }
 }
 interface SpotifyPhotoCallback {

@@ -1,18 +1,26 @@
 package com.example.charlotte.myapplication;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.LayoutInflaterCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -23,7 +31,15 @@ import android.widget.ListView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.ActivityRecognitionResult;
+import com.google.android.gms.location.DetectedActivity;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.mikepenz.iconics.context.IconicsLayoutInflater;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -34,6 +50,7 @@ import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.Spotify;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +63,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
-public class SingleConversationActivity extends AppCompatActivity implements ConnectionStateCallback, PlayerNotificationCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class SingleConversationActivity extends AppCompatActivity implements ConnectionStateCallback, PlayerNotificationCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,SensorEventListener, ResultCallback<Status>, LocationListener {
     private static final String CLIENT_ID = "7deb76a46e184f88ad88542ed347edcc";
     // TODO: Replace with your redirect URI
     private static final String REDIRECT_URI = "yourcustomprotocol://callback";
@@ -54,12 +71,24 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
     private static final String CLIENT_SECRET = "5adf6f19f1bf42298b5e95300f264f3f";
     private static final double AMBIENT_NOISE_SAMPLE_SIZE = 0.1;
     private static final int MY_ACCESS_PERMISSION_CONSTANT = 666;
+    public static final String ACTIVITY_UPDATE_FILTTEr = "activityUpdate";
+    public static final int ACTIVITY_UPDATE_FREQUENCY = 200;
+    public static final int LOCATION_REQUEST_INTERVAL = 300000;
     private Config playerConfig;
     private GoogleApiClient mGoogleApiClient;
-    private ReactiveLocationProvider locationProvider;
     private ListView myList;
     private BroadcastReceiver mBroadcastReceiver;
+    //in ms
+    public static final long WEATHER_UPDATE_THRESHOLD=600000;
+    private Date lastWeatherFetched;
+    public static final String UPDATE_CONVERSATION_ACTION="updateConversation";
+    private LocationRequest mLocationRequest;
 
+    private boolean mRequestingLocationUpdates=false;
+    private boolean mRequstingActivityUpdates=false;
+
+    Location lastLocation=null;
+    private int lastActivity=-1;
 
     public String getCurrentSongID() {
         return currentSongID;
@@ -71,18 +100,8 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
 
     private String currentSongID;
 
-    public boolean isPaused() {
-        return isPaused;
-    }
-
     public void setIsPaused(boolean isPaused) {
-        this.isPaused = isPaused;
-    }
-
-    private boolean isPaused;
-
-    public boolean isPlaying() {
-        return isPlaying;
+        boolean isPaused1 = isPaused;
     }
 
     public void setIsPlaying(boolean isPlaying) {
@@ -101,10 +120,17 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
 
     private Player mPlayer;
 
+    private float lastAccelerometerValues[][] = new float [25][3];
+    private int numMeasures=0;
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         setContentView(R.layout.activity_single_conversation);
         // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -119,12 +145,25 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d("TAG", "broadcast received");
-                updateMessages();
-            }
+                if (intent.getAction().equals(UPDATE_CONVERSATION_ACTION)) {
+                    updateMessages();
+                }
+                else if (intent.getAction().equals(ActivityRecognitionConstants.STRING_ACTION))
+                {
+
+                    int mostProbableActivity = intent.getIntExtra(ActivityRecognitionConstants.STRING_EXTRA, 0);
+                    lastActivity=mostProbableActivity;
+// Get the type of activity
+                        Log.d("TAG", "activity type is: " + mostProbableActivity);
+                    }
+                }
+
         };
 
 
+        //senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
+       // senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         Intent intent = getIntent();
         final String otherUserName = intent.getStringExtra("username");
         String currentUserName="";
@@ -137,6 +176,7 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
         }
 
       myList = (ListView) findViewById(R.id.listView);
+        myList.setDividerHeight(0);
         myList.setAdapter(new ConversationListAdapter(this, R.layout.contact_list_item, currentUserName, otherUserName));
 
         Button sendButton = (Button) findViewById(R.id.send_button);
@@ -175,6 +215,15 @@ if (hasSpotify) {
         Aware.startPlugin(this, "com.aware.plugin.ambient_noise");
 */
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(ActivityRecognition.API)
+                .addApi(LocationServices.API)
+                .build();
+        mLocationRequest= new LocationRequest();
+        mLocationRequest.setInterval(LOCATION_REQUEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
     public void loginToSpotify() {
@@ -214,6 +263,9 @@ if (hasSpotify) {
         //TODO: if not has google play
 
 
+        Log.d("singleconversation", "get accelerometer average: "+getAccelerationAverage(lastAccelerometerValues));
+
+
         final Message message = new Message(finalCurrentUserName2, otherUserName, text);
 
         if (MediaPlayingSingleton.getInstance().isPlaying() && MediaPlayingSingleton.getInstance().getCurrentSong() != null) {
@@ -222,47 +274,64 @@ if (hasSpotify) {
         }
 
 
+       // LocationHelper.getInstance().determineLocation(this, getApplicationContext(), new LocationFetchedInteface() {
+         //   @Override
+           // public void hasFetchedLocation(Location location) {
+        Location location=null;
+        if (lastLocation!=null)
+        {
+            location=lastLocation;
+        }
+        else if (LocationHelper.getInstance().isAllowLocation() ){
+            location=  LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+        }
 
-        LocationHelper.getInstance().determineLocation(this, getApplicationContext(), new LocationFetchedInteface() {
-            @Override
-            public void hasFetchedLocation(Location location) {
 
-
-
+            //wird immer gesetzt, ist im Zweifel einfach -1
+            message.setActivityValue(lastActivity);
 
 
                 if (location!=null)
                 {
-
                     //use coordinates
-
                     GeoLocation geoLocation=new GeoLocation(location.getLatitude(), location.getLongitude());
                     message.setSenderLocation(geoLocation);
-                    //make asynchronous call to weatherList api through service
-                    WeatherHelper.getInstance().getWeather(geoLocation, new WeatherFetchedCallback() {
-                        @Override
-                        public void onWeatherFetched(WeatherJSON weatherJSON) {
-                            //set weatherList data in message
 
-                            if (weatherJSON!=null) {
-                                message.setWeatherJSON(weatherJSON);
+                    if (canRefetchWeather()) {
+                        Log.d("Tag", "can refetch weather");
+
+                        //make asynchronous call to weatherList api through service
+                        WeatherHelper.getInstance().getWeather(geoLocation, new WeatherFetchedCallback() {
+                            @Override
+                            public void onWeatherFetched(WeatherJSON weatherJSON) {
+                                //set weatherList data in message
+
+                                if (weatherJSON != null) {
+                                    message.setWeatherJSON(weatherJSON);
+                                }
+                                //send message to server after callback
+                                sendMessageToServer(message);
+
                             }
-                            //send message to server after callback
-                            sendMessageToServer(message);
-
-                        }
-                    });
+                        });
 
 
-                }
+                    }
+                    else
+                    {
+
+                        sendMessageToServer(message);
+
+                }}
                 else {
 
                     sendMessageToServer(message);
                 }
 
 
-            }
-        });
+  //          }
+//        });
 
         //TODO: user another senderLocation if not accurate enough?
 
@@ -374,8 +443,20 @@ if (hasSpotify) {
 
     public void updateMessages()
     {
-
         ((ConversationListAdapter) myList.getAdapter()).initializeAdapter();
+    }
+
+
+    public boolean canRefetchWeather()
+    {
+        long diff=WEATHER_UPDATE_THRESHOLD+1;
+        Date now = new Date();
+        if (lastWeatherFetched!=null) {
+            diff = now.getTime() - lastWeatherFetched.getTime();
+        }
+
+        lastWeatherFetched=now;
+        return diff > WEATHER_UPDATE_THRESHOLD;
 
     }
 
@@ -666,10 +747,14 @@ Log.e("TAG", "on logged out");
     @Override
     public void onConnected(Bundle bundle) {
 
+        requestLocationUpdates();
+        requestActivityUpdates();
+
     }
 
     @Override
     public void onConnectionSuspended(int i) {
+        mGoogleApiClient.connect();
 
     }
 
@@ -683,6 +768,19 @@ Log.e("TAG", "on logged out");
         super.onPause();
         Application.setInSingleConversationActivity(false);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+        if (mGoogleApiClient.isConnected()) {
+            removeActivityUpdates();
+            removeLocationUpdates();
+        }
+        //senSensorManager.unregisterListener(this);
+
+    }
+
+    private void removeLocationUpdates() {
+
+        if (mGoogleApiClient.isConnected())
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
 
     }
 
@@ -691,8 +789,25 @@ Log.e("TAG", "on logged out");
         super.onResume();
         Application.setInSingleConversationActivity(true);
 
-        IntentFilter filter=new IntentFilter("updateConversation");
+        IntentFilter filter=new IntentFilter(UPDATE_CONVERSATION_ACTION);
+        filter.addAction(ActivityRecognitionConstants.STRING_ACTION);
+        //filter.addAction(ACTIVITY_UPDATE_FILTTEr);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
+    if (mGoogleApiClient.isConnected()) {
+        requestActivityUpdates();
+        requestLocationUpdates();
+
+    }
+
+      //  senSensorManager.registerListener(this, senAccelerometer , SensorManager.SENSOR_DELAY_NORMAL);
+
+    }
+
+    private void requestLocationUpdates() {
+        if (LocationHelper.getInstance().isAllowLocation()) {
+
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
     }
 
     @Override
@@ -723,4 +838,121 @@ Log.e("TAG", "on logged out");
             }
 
         }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+
+        numMeasures++;
+        final float alpha = 0.8f;
+
+        float[] gravity=new float[3];
+        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+        float[] linear_acceleration = new float[3];
+        linear_acceleration[0] = event.values[0] - gravity[0];
+        linear_acceleration[1] = event.values[1] - gravity[1];
+        linear_acceleration[2] = event.values[2] - gravity[2];
+
+
+        if (numMeasures>=5)
+        {
+
+            numMeasures=1;
+        }
+
+
+
+        lastAccelerometerValues[numMeasures-1][0]=linear_acceleration[0];
+        lastAccelerometerValues[numMeasures-1][1]=linear_acceleration[1];
+        lastAccelerometerValues[numMeasures-1][2]=linear_acceleration[2];
+
+        Log.d("TAG","average is: "+getAccelerationAverage(lastAccelerometerValues));
+    }
+
+    public float getAccelerationAverage(float[][] measures)
+    {
+        float sum=0.0f;
+        int notNullValues=0;
+        for (float[] axxisArray: measures)
+        {
+           // Log.d("TAG", "magnitude: "+getMagnitude(axxisArray)+ "x: "+axxisArray[0]+" y: "+axxisArray[1]+ " z: "+axxisArray[2]);
+            sum+=getMagnitude(axxisArray);
+           // Log.d("TAG", "current sum= "+sum);
+
+        }
+
+       // Log.d("TAG", "sum= "+sum+ "measures length: "+measures.length+ "sum/measures.length: "+sum/measures.length);
+
+        return  sum/measures.length;
+    }
+
+    public float getMagnitude(float[] axxisMeasure)
+    {
+
+        return (float) Math.sqrt(axxisMeasure[0]*axxisMeasure[0]+axxisMeasure[1]*axxisMeasure[1]+axxisMeasure[2]*axxisMeasure[2]);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    public void requestActivityUpdates() {
+        if (!mGoogleApiClient.isConnected()) {
+            //Toast.makeText(this, "GoogleApiClient not yet connected", Toast.LENGTH_SHORT).show();
+        } else {
+
+
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, ACTIVITY_UPDATE_FREQUENCY, getActivityDetectionPendingIntent()).setResultCallback(this);
+        }
+    }
+
+    public void removeActivityUpdates() {
+        if (mGoogleApiClient.isConnected())
+        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent()).setResultCallback(this);
+    }
+
+
+    private PendingIntent getActivityDetectionPendingIntent() {
+        Intent intent = new Intent(this, ActivitiesIntentService.class);
+
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    @Override
+    public void onResult(@NonNull Status status) {
+        if (status.isSuccess()) {
+            Log.e("TAG", "Successfully added activity detection.");
+
+        } else {
+            Log.e("TAG", "Error: " + status.getStatusMessage());
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        lastLocation=location;
+
+
+        Log.d("TAG", "new location: "+location.getLatitude()+"  "+location.getLongitude());
+
+    }
 }

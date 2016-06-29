@@ -16,7 +16,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_marginLeft="20dip"
+    android:layout_marginRight="20dip">
 
 
 
@@ -31,7 +33,7 @@
     -->
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="120dip"
         android:layout_marginLeft="20dip">
         <TextView
             android:layout_width="wrap_content"
@@ -41,10 +43,9 @@
             android:id="@+id/sender_name"
             android:layout_marginTop="20dip"
             android:textColor="@color/colorPrimary"
-            android:textAppearance="?android:attr/textAppearanceSmall"
 
 
-            />
+            android:textAppearance="@style/SmallText" />
 
 
 <TextView
@@ -58,12 +59,11 @@ android:text="13.7.89"
     android:layout_alignParentRight="true"
     android:layout_alignParentEnd="true"
     android:layout_alignTop="@+id/sender_name"
-    android:textAppearance="?android:attr/textAppearanceSmall"
-    />
+    android:textAppearance="@style/SmallText" />
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/activity_image_size"
+            android:layout_height="@dimen/activity_image_size"
             android:src="@drawable/bicycle"
             android:layout_below="@+id/message_date"
             android:layout_alignLeft="@+id/message_date"
@@ -77,7 +77,7 @@ android:text="13.7.89"
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="@style/MediumText"
             android:text="kurze Nachricht"
             android:id="@+id/messageText"
             android:layout_gravity="center_vertical"
@@ -96,7 +96,7 @@ android:text="13.7.89"
 
 <RelativeLayout
     android:layout_width="fill_parent"
-    android:layout_height="100dip"
+    android:layout_height="150dip"
     android:orientation="horizontal"
     android:id="@+id/music_view"
 
@@ -124,8 +124,8 @@ android:layout_centerVertical="true"
 
 
     <ImageButton
-        android:layout_width="50dip"
-        android:layout_height="50dip"
+        android:layout_width="@dimen/button_image_width"
+        android:layout_height="@dimen/button_image_width"
         android:text="Play/Pause"
         android:id="@+id/button"
         android:src="@drawable/play_pause"
@@ -134,7 +134,9 @@ android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="20dp"
-        android:layout_marginEnd="20dp" />
+        android:layout_marginEnd="20dp"
+        android:scaleType="fitCenter"
+        android:padding="10dip"/>
 
     <TextView android:id="@+id/textSong"
         android:layout_width="wrap_content"
@@ -148,7 +150,7 @@ android:layout_centerVertical="true"
         android:textAlignment="center"
 
 
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/MediumText"
        />
 
 
@@ -156,7 +158,7 @@ android:layout_centerVertical="true"
 
 <LinearLayout
     android:layout_width="wrap_content"
-    android:layout_height="match_parent"
+    android:layout_height="150dip"
     android:orientation="vertical"
     android:id="@+id/distance_view_layout">
     <View
@@ -168,27 +170,25 @@ android:layout_centerVertical="true"
         android:id="@+id/spotify_divider" />
     <com.example.charlotte.myapplication.DistanceView
         android:layout_width="match_parent"
-        android:layout_height="60dip"
+        android:layout_height="match_parent"
         app:distanceAnnotation="100 m"
         app:distanceFraction="0.5"
         app:markerSize="50.0"
         app:textSize="@integer/distance_view_text_size"
-        android:id="@+id/distanceView"
-        android:layout_marginBottom="10dip"
-     />
+        android:id="@+id/distanceView" />
 </LinearLayout>
 
 
 
 
     <RelativeLayout
- android:layout_width="fill_parent"
-    android:layout_height="70dip"
+ android:layout_width="match_parent"
+    android:layout_height="150dip"
     android:orientation="horizontal"
         android:longClickable="false"
         android:id="@+id/weather_layout">
         <View
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#c0c0c0"
             android:layout_marginLeft="20dip"
@@ -196,24 +196,26 @@ android:layout_centerVertical="true"
             android:id="@+id/weather_layout_divider"/>
 <ImageView
     android:layout_width="@dimen/weather_image_size"
-    android:layout_height="60dip"
+    android:layout_height="@dimen/weather_image_size"
     android:id="@+id/weather_image"
     android:src="@drawable/thermometer"
     android:layout_marginLeft="25dip"
     android:layout_centerVertical="true"
-    android:layout_below="@id/weather_layout_divider"/>
+/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/weather_image"
 
             android:text="10 °"
-            android:layout_marginLeft="20dip"
-            android:layout_centerVertical="true"
             android:id="@+id/weather_text"
-            android:textAppearance="?android:textAppearanceMedium"
-            />
+            android:textAppearance="@style/MediumText"
+
+            android:layout_toRightOf="@id/weather_image"
+
+            android:layout_centerVertical="true"
+
+         />
 
 </RelativeLayout>
 </LinearLayout>

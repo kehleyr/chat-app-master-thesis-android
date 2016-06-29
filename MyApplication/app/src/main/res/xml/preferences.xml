@@ -18,4 +18,14 @@ android:key="@string/edit_display_name_key"
 
 />
 
+    <EditTextPreference
+        android:key="@string/groupname"
+        android:title="Edit group membership"
+        android:summary="Edit group membership"
+/>
+    <EditTextPreference
+android:key="@string/server_string"
+android:title="Set server base url"
+        android:summary="Set server base url"
+    />
 </PreferenceScreen>

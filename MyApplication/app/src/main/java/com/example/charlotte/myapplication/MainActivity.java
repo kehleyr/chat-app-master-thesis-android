@@ -26,6 +26,7 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -83,7 +84,7 @@ import retrofit2.Response;
  * An action should be an operation performed on the current contents of the window,
  * for example enabling or disabling a data overlay on top of the current content.</p>
  */
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity  implements ChatSettingsFragment.OnFragmentInteractionListener{
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -156,8 +157,11 @@ public class MainActivity extends AppCompatActivity  {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String userName = sharedPref.getString(getString(R.string.edit_name_key), "");
         String displayName=sharedPref.getString(getString(R.string.edit_display_name_key), "");
+        String groupName = sharedPref.getString(getString(R.string.groupname), "bla");
 
         UserSingleton.getInstance().setUser(new User(userName, displayName));
+        UserSingleton.getInstance().setGroup(groupName);
+
 
 
 
@@ -198,6 +202,10 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 
 
     /* The click listner for ListView in the navigation drawer */

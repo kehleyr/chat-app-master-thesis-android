@@ -35,7 +35,7 @@ public class ChatListAdapter extends ArrayAdapter<User> {
     }
 
     public void initializeAdapter() {
-        Call<List<User>> call = Application.getService().getUsersForGroup("g3");
+        Call<List<User>> call = Application.getService().getUsersForGroup(UserSingleton.getInstance().getGroup());
         Log.d("TAG", "created call");
 
         call.enqueue(new Callback<List<User>>() {

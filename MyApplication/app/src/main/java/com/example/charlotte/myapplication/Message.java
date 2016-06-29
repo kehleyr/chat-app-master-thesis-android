@@ -15,6 +15,16 @@ public class Message {
     Location fromUserLocation;
     String fromUserName, toUserName;
 
+    public int getActivityValue() {
+        return activityValue;
+    }
+
+    public void setActivityValue(int activityValue) {
+        this.activityValue = activityValue;
+    }
+
+    int activityValue;
+
     public WeatherJSON getWeatherJSON() {
         return weatherJSON;
     }

@@ -24,6 +24,9 @@ public class LocationHelper {
     private static final long LOCATION_TIMEOUT_IN_SECONDS = 2;
     private ReactiveLocationProvider locationProvider;
 
+    public static final float MIN_DIST_VIEW_LENGTH=100;
+    public static final float MAX_DIST_VIEW_LENGTH=20000;
+
     public static LocationHelper getInstance()
 
 
@@ -37,6 +40,26 @@ public class LocationHelper {
 
 
     }
+
+public float computeDistanceFractionForView(float distance){
+
+    if (distance>=MAX_DIST_VIEW_LENGTH) {
+        distance = MAX_DIST_VIEW_LENGTH;
+    }
+    else if (distance<MIN_DIST_VIEW_LENGTH) {
+        distance=MIN_DIST_VIEW_LENGTH;
+    }
+
+    return distance/MAX_DIST_VIEW_LENGTH;
+
+
+
+}
+
+
+
+
+
     public  boolean isAllowLocation() {
         return allowLocation;
     }
@@ -90,10 +113,6 @@ public class LocationHelper {
 
                     }
                     locationFetchedInteface.hasFetchedLocation(location);
-
-
-
-
                 }
             });
         }

@@ -1,9 +1,12 @@
 package com.example.charlotte.myapplication;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,6 +31,12 @@ public class Application extends android.app.Application {
 
 
     private static boolean inSingleConversationActivity;
+
+    public static Retrofit getMessageRetrofit() {
+        return messageRetrofit;
+    }
+
+    private static Retrofit messageRetrofit;
 
     public static MessagingServerService getService() {
         return service;
@@ -66,14 +75,31 @@ public class Application extends android.app.Application {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .create();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(baseURL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-                .build()
-               ;
+        String url = sharedPref.getString(getString(R.string.server_string),baseURL);
+        Log.d("Application", url);
 
-        service = retrofit.create(MessagingServerService.class);
+
+        try {
+
+            messageRetrofit = new Retrofit.Builder()
+                    .baseUrl(url)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+
+                    .build()
+            ;
+        }catch(IllegalArgumentException e)
+        {
+            messageRetrofit = new Retrofit.Builder()
+                    .baseUrl(baseURL)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+
+                    .build();
+
+        }
+
+        service = messageRetrofit.create(MessagingServerService.class);
 
 /*
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();

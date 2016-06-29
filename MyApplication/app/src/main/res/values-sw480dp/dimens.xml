@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="artist_image_size">120dip</dimen>
+    <dimen name="button_image_width">70dip</dimen>
+    <dimen name="activity_image_size">40dip</dimen>
+    <dimen name="weather_image_size">80dip</dimen>
+</resources>

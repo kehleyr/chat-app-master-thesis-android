@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">ContextChat</string>
     <string name="action_settings">Settings</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
@@ -19,4 +19,16 @@
     <string name="spotify_summary">Enable Spotify</string>
     <string name="spotify_title">Enable Spotify</string>
     <string name="spotify_enabled_string">spotify_enabled</string>
+    <string name="groupname">groupname</string>
+    <string name="server_string">server_string</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="selected_configuration">smaller than 320dp</string>
+
+
+
+    <string name="owf_200"> &#60200;</string>
+<string name="owf_201">&#60201;</string>
+    <string name="owf_202">\EB2A</string>
+    <string name="owf_203">\EB32</string>
+
 </resources>
