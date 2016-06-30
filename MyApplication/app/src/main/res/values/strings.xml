@@ -25,10 +25,15 @@
     <string name="selected_configuration">smaller than 320dp</string>
 
 
+<string name="w01">&#xed80;</string>
+<string name="w02">&#xed81;</string>
+    <string name="w03">&#xed82;</string>
+    <string name="w04">&#xed83;</string>
+    <string name="w09">&#xec69;</string>
+    <string name="w10">&#xec55;</string>
+    <string name="w11">&#xeb33;</string>
+    <string name="w13">&#xecb9;</string>
+    <string name="w50">&#xed1d;</string>
 
-    <string name="owf_200"> &#60200;</string>
-<string name="owf_201">&#60201;</string>
-    <string name="owf_202">\EB2A</string>
-    <string name="owf_203">\EB32</string>
 
 </resources>
