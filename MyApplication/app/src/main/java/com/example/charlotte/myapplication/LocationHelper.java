@@ -24,8 +24,8 @@ public class LocationHelper {
     private static final long LOCATION_TIMEOUT_IN_SECONDS = 2;
     private ReactiveLocationProvider locationProvider;
 
-    public static final float MIN_DIST_VIEW_LENGTH=100;
-    public static final float MAX_DIST_VIEW_LENGTH=20000;
+    public static final float MIN_DIST_VIEW_LENGTH=3000.0f;
+    public static final float MAX_DIST_VIEW_LENGTH=10000.0f;
 
     public static LocationHelper getInstance()
 
@@ -43,6 +43,8 @@ public class LocationHelper {
 
 public float computeDistanceFractionForView(float distance){
 
+    Log.d("TAG", "compute distance fraction for view");
+
     if (distance>=MAX_DIST_VIEW_LENGTH) {
         distance = MAX_DIST_VIEW_LENGTH;
     }
@@ -50,11 +52,28 @@ public float computeDistanceFractionForView(float distance){
         distance=MIN_DIST_VIEW_LENGTH;
     }
 
+    Log.d("TAG", "ergebnisdistanz: "+distance/MAX_DIST_VIEW_LENGTH);
+
     return distance/MAX_DIST_VIEW_LENGTH;
 
 
-
 }
+
+
+    public String computeDistanceString(float distance)
+    {
+
+        String  unitString="m", formatString="%.0f";
+
+        if (distance>=1000)
+        {
+            distance=distance/1000.0f;
+            unitString="km";
+            formatString="%.1f";
+        }
+
+            return "" + String.format(java.util.Locale.US,formatString,distance)+ " "+unitString;
+    }
 
 
 

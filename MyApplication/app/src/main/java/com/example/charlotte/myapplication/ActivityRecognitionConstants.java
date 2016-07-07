@@ -6,6 +6,7 @@ package com.example.charlotte.myapplication;
 public class ActivityRecognitionConstants {
 
 
+        public static final String LIST_EXTRA =".LIST_EXTRA" ;
 
         private ActivityRecognitionConstants(){
 

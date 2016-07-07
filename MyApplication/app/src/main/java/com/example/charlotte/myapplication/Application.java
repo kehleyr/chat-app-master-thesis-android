@@ -59,7 +59,7 @@ public class Application extends android.app.Application {
     }
 
     private static MySpotifyService spotifyService;
-    static String baseURL = "http://192.168.1.12:3000/";
+    static String baseURL = "https://immense-earth-44435.herokuapp.com/";
 
     public static boolean isInSingleConversationActivity() {
         return inSingleConversationActivity;
@@ -74,6 +74,7 @@ public class Application extends android.app.Application {
         super.onCreate();
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+
                 .create();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 

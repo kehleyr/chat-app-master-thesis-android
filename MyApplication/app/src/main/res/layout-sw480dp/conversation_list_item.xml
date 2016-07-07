@@ -61,10 +61,10 @@ android:text="13.7.89"
     android:layout_alignTop="@+id/sender_name"
     android:textAppearance="@style/SmallText" />
 
-        <ImageView
-            android:layout_width="@dimen/activity_image_size"
-            android:layout_height="@dimen/activity_image_size"
-            android:src="@drawable/bicycle"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/artist_image_size"
             android:layout_below="@+id/message_date"
             android:layout_alignLeft="@+id/message_date"
             android:layout_alignStart="@+id/message_date"
@@ -138,20 +138,30 @@ android:layout_centerVertical="true"
         android:scaleType="fitCenter"
         android:padding="10dip"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textArtist"
+        android:text="Radiohead"
+        android:layout_toRightOf="@id/artistImage"
+        android:layout_toLeftOf="@id/button"
+        android:textAlignment="center"
+        android:textAppearance="@style/MediumText"
+        android:layout_marginTop="40dip"
+        />
+
     <TextView android:id="@+id/textSong"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Radiohead - Paranoid Android"
-        android:layout_marginLeft="15dip"
-        android:layout_marginRight="15dip"
-        android:layout_toLeftOf="@id/button"
-        android:layout_centerVertical="true"
+        android:text="Paranoid Android"
+        android:layout_below="@id/textArtist"
+
+        android:textAppearance="@style/SmallText"
         android:layout_toRightOf="@id/artistImage"
+        android:layout_toLeftOf="@id/button"
         android:textAlignment="center"
 
-
-        android:textAppearance="@style/MediumText"
-       />
+        />
 
 
 </RelativeLayout>
@@ -162,12 +172,12 @@ android:layout_centerVertical="true"
     android:orientation="vertical"
     android:id="@+id/distance_view_layout">
     <View
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#c0c0c0"
         android:layout_marginLeft="20dip"
         android:layout_marginRight="20dip"
-        android:id="@+id/spotify_divider" />
+        android:id="@+id/distance_view_divider" />
     <com.example.charlotte.myapplication.DistanceView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -194,24 +204,31 @@ android:layout_centerVertical="true"
             android:layout_marginLeft="20dip"
             android:layout_marginRight="20dip"
             android:id="@+id/weather_layout_divider"/>
-<ImageView
-    android:layout_width="@dimen/weather_image_size"
-    android:layout_height="@dimen/weather_image_size"
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:id="@+id/weather_image"
     android:src="@drawable/thermometer"
     android:layout_marginLeft="25dip"
     android:layout_centerVertical="true"
-/>
+    android:textColor="@color/colorPrimary"
+    android:textSize="@dimen/weather_image_size"
+    android:alpha="0.75"
+android:text="abc"
+    />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
+            android:textColor="@color/darkerGrey"
             android:text="10 °"
             android:id="@+id/weather_text"
             android:textAppearance="@style/MediumText"
+            android:layout_marginTop="20dip"
 
             android:layout_toRightOf="@id/weather_image"
+            android:layout_marginLeft="20dip"
 
             android:layout_centerVertical="true"
 

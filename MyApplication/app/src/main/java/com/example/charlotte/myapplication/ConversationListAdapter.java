@@ -1,5 +1,6 @@
 package com.example.charlotte.myapplication;
 
+import android.app.MediaRouteButton;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.location.Location;
@@ -15,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.DetectedActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -23,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
@@ -34,13 +37,16 @@ import retrofit2.Response;
  */
 public class ConversationListAdapter extends ArrayAdapter<Message>{
 
+    public static final int QUERY_LIMIT = 30;
+    private static Typeface materialIconTypeFace;
+    private static Typeface weatherIconTypeface;
     private final String fromUser;
     private final String toUser;
     private List itemList;
     private static final int DB_MIN_VALUE=0;
     private static final int DB_MAX_VALUE=120;
     private long startTime;
-    public static final long MAX_HOURS_BETWEEN_DISTANCES=3;
+    public static final long MAX_MINUTES_BETWEEN_DISTANCES =30;
 
     public ConversationListAdapter(Context context, int resource, String fromUser, String toUser) {
         super(context, resource);
@@ -49,9 +55,30 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
         initializeAdapter();
         Log.d("TAG", "new conversation list adapter");
-
-
     }
+
+
+
+
+    public static Typeface getMaterialIconTypeface(Context context)
+    {
+        if (materialIconTypeFace == null)
+        {
+            materialIconTypeFace = Typeface.createFromAsset(context.getAssets(),"fonts/MaterialIcons-Regular.ttf");
+        }
+        return  materialIconTypeFace;
+    }
+
+    public static Typeface getWeatherIconTypeface(Context context)
+    {
+        if (weatherIconTypeface == null)
+        {
+            weatherIconTypeface = Typeface.createFromAsset(context.getAssets(),"fonts/owf-regular2.ttf");
+        }
+        return  weatherIconTypeface;
+    }
+
+
 
     @Override
     public Message getItem(int position) {
@@ -59,9 +86,13 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
     }
 
     public void initializeAdapter() {
+
+        Toast.makeText(getContext(), "initialize list adapter", Toast.LENGTH_SHORT).show();
+
         startTime = System.nanoTime();
 
-        Call<List<Message>> call = Application.getService().getConversation(fromUser, toUser, 0);
+        Call<List<Message>> call = Application.getService().getConversation(fromUser, toUser,
+                QUERY_LIMIT);
         Log.d("TAG", "initialize adapter again");
 
         call.enqueue(new Callback<List<Message>>() {
@@ -71,7 +102,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
                 List<Message> messages = response.body();
 
-                if (messages!=null) {
+                if (messages != null) {
                     Log.d("TAG", "on response called list isze is " + messages.size());
 
                     for (Message message : messages) {
@@ -82,6 +113,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
                     addAll(messages);
                     Log.d("TAG", "notify dataset changed");
                     notifyDataSetChanged();
+                    ((SingleConversationActivity) getContext()).scrollMyListViewToBottom();
                 }
 
             }
@@ -89,8 +121,10 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
             @Override
             public void onFailure(Call<List<Message>> call, Throwable t) {
 
+                Toast.makeText(getContext(), "gm failed " + t.getCause(), Toast.LENGTH_SHORT).show();
 
-                Log.e("Conversation", t.getMessage()+t.getCause());
+
+                Log.e("Conversation", t.getMessage() + t.getCause());
             }
 
 
@@ -115,9 +149,11 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         Log.d("TAG", "hurray message date is not null!");
         Date date = new Date();
         long diff = date.getTime()-messageDate.getTime();
-        long hours = TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS);
+        long minutes = TimeUnit.MINUTES.convert(diff, TimeUnit.MILLISECONDS);
 
-        return hours > MAX_HOURS_BETWEEN_DISTANCES;
+        Log.d("conversation", "minutes is: " + minutes + " amd max minutes is: " + MAX_MINUTES_BETWEEN_DISTANCES);
+
+        return minutes > MAX_MINUTES_BETWEEN_DISTANCES;
 
     }
 
@@ -151,14 +187,18 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
             viewHolder.button = (ImageButton) convertView.findViewById(R.id.button);
             viewHolder.distanceViewLayout = (LinearLayout) convertView.findViewById(R.id.distance_view_layout);
             viewHolder.distanceView = (DistanceView) convertView.findViewById(R.id.distanceView);
-            viewHolder.weatherImage=(ImageView) convertView.findViewById(R.id.weather_image);
+            viewHolder.weatherImage=(TextView) convertView.findViewById(R.id.weather_image);
             viewHolder.weatherText=(TextView)convertView.findViewById(R.id.weather_text);
-            viewHolder.spotifyLine = (View)convertView.findViewById(R.id.spotify_divider);
+            viewHolder.spotifyLine = (View)convertView.findViewById(R.id.distance_view_divider);
             viewHolder.messageSender= (TextView) convertView.findViewById(R.id.sender_name);
-            viewHolder.activityImage= (ImageView) convertView.findViewById(R.id.activity_image);
+            viewHolder.activityImage= (TextView) convertView.findViewById(R.id.activity_image);
             viewHolder.weatherView = (RelativeLayout) convertView.findViewById(R.id.weather_layout);
             viewHolder.messageDate= (TextView) convertView.findViewById(R.id.message_date);
             viewHolder.messageCardView = (CardView) convertView.findViewById(R.id.message_card_view);
+            viewHolder.textArtist=(TextView) convertView.findViewById(R.id.textArtist);
+            viewHolder.distanceViewDivider=(View)convertView.findViewById(R.id.distance_view_divider);
+            viewHolder.musicView = (RelativeLayout) convertView.findViewById(R.id.music_view);
+
             // store the holder with the view.
             convertView.setTag(viewHolder);
 
@@ -173,7 +213,11 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
             if (fromOtherUser)
             {
-                viewHolder.messageCardView.setCardBackgroundColor(R.color.colorAccent);
+                viewHolder.messageCardView.setCardBackgroundColor(getContext().getResources().getColor(R.color.colorAccent));
+            }
+            else {
+
+                viewHolder.messageCardView.setCardBackgroundColor(getContext().getResources().getColor(R.color.cardview_light_background));
             }
 
 
@@ -191,84 +235,81 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
             if (message.getTimestamp()!=null)
             {
 
-                SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yy hh:mm", Locale.GERMANY);
-                viewHolder.messageDate.setText(formatter.format(message.getTimestamp()));
+                Date date = new Date();
+                Date fromGmt = new Date(message.getTimestamp().getTime() + TimeZone.getDefault().getOffset(date.getTime()));
+                SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yy HH:mm", Locale.GERMANY);
+                viewHolder.messageDate.setText(formatter.format(fromGmt));
             }
 
-            RelativeLayout musicView = (RelativeLayout) convertView.findViewById(R.id.music_view);
 
             if (message.getSong() != null) {
                 final Song song = message.getSong();
-                viewHolder.songTitleTextView.setText(song.getArtist() + " - " + song.getSongname());
+                viewHolder.textArtist.setText(song.getArtist());
+                viewHolder.songTitleTextView.setText(song.getSongname());
 
+
+                //TODO: check if player is alive
 
                 if (song.getSpotifyID() != null) {
                     Log.d("TAG", "spotify song id: " + song.getSpotifyID());
 
                     final String spotifyId = song.getSpotifyID();
                     showPlayButtonAndSpotifyImage(viewHolder, spotifyId);
+                }
+                else {
 
-
-                } else {
-
-                    SpotifyServiceSingleton.getInstance().getSpotifyIdForSongData(song.getArtist(), song.getSongname(), new SpotifyTrackCallback() {
-                        @Override
-                        public void trackFetched(String trackId) {
-
-                            if (trackId != null) {
-                                Log.d("TAG", "track id");
-                                showPlayButtonAndSpotifyImage(viewHolder, trackId);
-
-                                //TODO: add track id to server!
-                            }
-                        }
-                    });
-
-
+                    hidePlayButtonAndSpotifyImage(viewHolder);
                 }
 
-
-                musicView.setVisibility(View.VISIBLE);
-                viewHolder.spotifyLine.setVisibility(View.VISIBLE);
+                makeMusicViewVisible(viewHolder, true);
             } else {
-                musicView.setVisibility(View.GONE);
-                viewHolder.button.setVisibility(View.GONE);
-                viewHolder.spotifyLine.setVisibility(View.GONE);
+
+                makeMusicViewVisible(viewHolder, false);
             }
 
 
             if (message.getWeatherJSON() != null) {
-                viewHolder.weatherView.setVisibility(View.VISIBLE);
-                viewHolder.weatherText.setText("Temperatur: " + message.getWeatherJSON().getMain().getTemp() + " °");
+                makeWeatherViewVisible(viewHolder, true);
+                viewHolder.weatherText.setText("Temperatur: " + message.getWeatherJSON().getMain().getTemp() + "°");
                 ImageLoader imageLoader = ImageLoader.getInstance();
                 if (message.getWeatherJSON().getWeatherList() != null) {
+                    viewHolder.weatherImage.setTypeface(getWeatherIconTypeface(getContext()));
                     String iconString = message.getWeatherJSON().getWeatherList().get(0).getIcon();
+                    viewHolder.weatherImage.setText(getContext().getResources().getString(getWeatherStringForIconString(iconString)));
                     //TODO: download and save icon
-                    imageLoader.displayImage(WeatherHelper.getInstance().getURLForIconString(iconString), viewHolder.weatherImage);
+                    //imageLoader.displayImage(WeatherHelper.getInstance().getURLForIconString(iconString), viewHolder.weatherImage);
                 }
 
             }
             else {
 
-                viewHolder.weatherView.setVisibility(View.GONE);
+                makeWeatherViewVisible(viewHolder,false);
             }
 
-            if (message.getActivityValue()>=0)
+            if (message.getActivityValue()>=0 && message.getActivityValue()!=DetectedActivity.UNKNOWN)
             {
-                viewHolder.activityImage.setImageDrawable(getContext().getResources().getDrawable(matchActivityTypesToDrawableRes(message.getActivityValue())));
+
+                viewHolder.activityImage.setVisibility(View.VISIBLE);
+                viewHolder.activityImage.setTypeface(getMaterialIconTypeface(getContext()));
+                viewHolder.activityImage.setText(getContext().getResources().getString(matchActivityTypesToStringRes(message.getActivityValue())));
+            }
+            else {
+
+                viewHolder.activityImage.setVisibility(View.GONE);
             }
 
 
             if (message.getUsersDistance() != null) {
 
                 float distance = message.getUsersDistance().getDistanceValue();
+                Log.d("TAG", "distanz = "+distance);
+
                 //TODO: format correctly
-                viewHolder.distanceView.setDistanceAnnotation(""+distance+ " m");
-                viewHolder.distanceView.setDistanceFraction(LocationHelper.getInstance().computeDistanceFractionForView(distance));
-                viewHolder.distanceViewLayout.setVisibility(View.VISIBLE);
+                showDistanceOnDistanceView(viewHolder, LocationHelper.getInstance().computeDistanceString(distance), LocationHelper.getInstance().computeDistanceFractionForView(distance));
+                makeDistanceViewVisible(viewHolder, true);
 
             }
-            else if (message.getSenderLocation() != null && fromOtherUser) {
+            else if (message.getSenderLocation() != null && fromOtherUser && !timeoutReachedForDistanceComputation(message.getTimestamp())) {
                     final GeoLocation otherUserDistance = message.getSenderLocation();
 
                     LocationHelper.getInstance().determineLocation(getContext(), getContext().getApplicationContext(), new LocationFetchedInteface() {
@@ -282,22 +323,22 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
                                 float distanceInMeters = res[0];
 
                                 Log.d("TAG", "my distance in meters: " + distanceInMeters);
-                                viewHolder.distanceView.setDistanceAnnotation(""+distanceInMeters+ " m");
-                                viewHolder.distanceView.setDistanceFraction(LocationHelper.getInstance().computeDistanceFractionForView(distanceInMeters));
-                                viewHolder.distanceViewLayout.setVisibility(View.VISIBLE);
+                                showDistanceOnDistanceView(viewHolder, ""+distanceInMeters+ " m", LocationHelper.getInstance().computeDistanceFractionForView(distanceInMeters));
+                                makeDistanceViewVisible(viewHolder, true);
 
                                 //call distance update function
                                 Log.d("TAG", "not sender of message, updating distance");
 
                                 //if timeout for distance computation has not yet been reached
-                                if (!timeoutReachedForDistanceComputation(message.getTimestamp())) {
+
                                     updateUsersDistance(distanceInMeters, message);
 
-                                }
+
 
                             } else {
 
-                                viewHolder.distanceViewLayout.setVisibility(View.GONE);
+                                makeDistanceViewVisible(viewHolder, false);
+
 
                                 Log.d("TAG", "location is null here, why?");
                             }
@@ -309,7 +350,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
                 }
             else {
 
-                viewHolder.distanceViewLayout.setVisibility(View.GONE);
+                makeDistanceViewVisible(viewHolder, false);
 
             }
             }
@@ -319,20 +360,68 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
     }
 
+    private void makeMusicViewVisible(ViewHolder viewHolder, boolean visible) {
+        if (visible) {
+            viewHolder.musicView.setVisibility(View.VISIBLE);
+            viewHolder.spotifyLine.setVisibility(View.VISIBLE);
+        }
+        else{
 
-    public int matchActivityTypesToDrawableRes(int activityType)
+            viewHolder.musicView.setVisibility(View.GONE);
+            viewHolder.button.setVisibility(View.GONE);
+            viewHolder.spotifyLine.setVisibility(View.GONE);
+
+        }
+    }
+
+    private void makeWeatherViewVisible(ViewHolder viewHolder, boolean visible) {
+        if (visible) {
+            viewHolder.weatherView.setVisibility(View.VISIBLE);
+        }
+        else {
+
+            viewHolder.weatherView.setVisibility(View.GONE);
+        }
+    }
+
+    private void showDistanceOnDistanceView(ViewHolder viewHolder, String distance2, float distance3) {
+        viewHolder.distanceView.setDistanceAnnotation(distance2);
+        viewHolder.distanceView.setDistanceFraction(distance3);
+    }
+
+    private void makeDistanceViewVisible(ViewHolder viewHolder, boolean visible) {
+        if (visible) {
+            viewHolder.distanceViewLayout.setVisibility(View.VISIBLE);
+            viewHolder.distanceViewDivider.setVisibility(View.VISIBLE);
+        }
+        else {
+
+            viewHolder.distanceViewLayout.setVisibility(View.GONE);
+            viewHolder.distanceViewDivider.setVisibility(View.GONE);
+        }
+    }
+
+
+    private int getWeatherStringForIconString(String iconString) {
+        int id = getContext().getResources().getIdentifier("w"+iconString.replace("d","").replace("n",""), "string", getContext().getPackageName());
+        Log.d("TAG", "id is: "+id);
+        return id;
+    }
+
+
+    public int matchActivityTypesToStringRes(int activityType)
     {
 
         switch (activityType){
-            case DetectedActivity.IN_VEHICLE: return R.drawable.car_icon;
-            case DetectedActivity.ON_BICYCLE: return R.drawable.bicycle;
-            case DetectedActivity.ON_FOOT: return R.drawable.walking;
-            case DetectedActivity.WALKING: return  R.drawable.walking;
-            case DetectedActivity.RUNNING: return  R.drawable.running;
-            case DetectedActivity.STILL: return R.drawable.sitting;
-            case DetectedActivity.TILTING: return R.drawable.tilting;
-            case DetectedActivity.UNKNOWN: return R.drawable.unknown;
-            default: return R.drawable.unknown;
+            case DetectedActivity.IN_VEHICLE: return R.string.car;
+            case DetectedActivity.ON_BICYCLE: return R.string.bike;
+            case DetectedActivity.ON_FOOT: return R.string.walking;
+            case DetectedActivity.WALKING: return  R.string.walking;
+            case DetectedActivity.RUNNING: return  R.string.running;
+            case DetectedActivity.STILL: return R.string.still;
+            case DetectedActivity.TILTING: return R.string.tilt;
+            case DetectedActivity.UNKNOWN: return R.string.unknown;
+            default: return R.string.unknown;
 
         }
 
@@ -374,13 +463,21 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         viewHolder.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (getContext()!=null) {
+                if (getContext() != null) {
 
                     ((SingleConversationActivity) getContext()).playSong(spotifyId);
 
                 }
             }
         });
+    }
+
+
+    public void hidePlayButtonAndSpotifyImage(final ViewHolder viewHolder)
+    {
+        viewHolder.button.setVisibility(View.GONE);
+        viewHolder.songImageView.setVisibility(View.GONE);
+
     }
 
     public int getStartsForRatingBar(double db)
@@ -409,18 +506,21 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         TextView textViewItem;
         TextView songTitleTextView;
         ImageView songImageView;
-        ImageView weatherImage;
+        TextView weatherImage;
         TextView weatherText;
+        TextView textArtist;
         TextView messageSender;
         TextView messageDate;
         public ImageButton button;
         public RatingBar ratingBar;
         public LinearLayout distanceViewLayout;
         public View spotifyLine;
-        ImageView activityImage;
+        TextView activityImage;
         public DistanceView distanceView;
         public RelativeLayout weatherView;
         public CardView messageCardView;
+        public View distanceViewDivider;
+        public RelativeLayout musicView;
     }
 }
 interface SpotifyPhotoCallback {

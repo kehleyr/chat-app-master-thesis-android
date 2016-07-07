@@ -14,9 +14,10 @@ import retrofit2.Call;
 /**
  * Created by charlotte on 01.05.16.
  */
-public class SpotifyServiceSingleton {
+public class SpotifyServiceSingleton implements ApiRequestInterface {
     private static SpotifyServiceSingleton ourInstance = new SpotifyServiceSingleton();
     private SpotifyService spotify;
+    private ApiRequest request;
 
     public static SpotifyServiceSingleton getInstance() {
         return ourInstance;
@@ -83,8 +84,8 @@ public class SpotifyServiceSingleton {
                 if (tracksPager.tracks.items.size() > 0) {
 
                     Track track = tracksPager.tracks.items.get(0);
-                    trackId = track.id;
-                    Log.d("TAG", "trackid is: " + trackId);
+                    trackId = "spotify:track:"+track.id;
+                    Log.d("TAG", "fetched trackid is: " + trackId);
 
                 }
                 spotifyAPICallBack.trackFetched(trackId);
@@ -93,6 +94,8 @@ public class SpotifyServiceSingleton {
 
             @Override
             public void onFailure(Call<TracksPager> call, Throwable t) {
+
+                spotifyAPICallBack.trackFetched(null);
 
             }
         });
@@ -120,4 +123,14 @@ public class SpotifyServiceSingleton {
 
     }
 
-        }
+    @Override
+    public void setRequest(ApiRequest request) {
+
+        this.request=request;
+    }
+
+    @Override
+    public ApiRequest getRequest() {
+      return request;
+    }
+}

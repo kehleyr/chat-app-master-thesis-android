@@ -2,7 +2,10 @@ package com.example.charlotte.myapplication;
 
 import android.location.Location;
 
+import com.google.android.gms.location.DetectedActivity;
+
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by charlotte on 01.05.16.
@@ -14,6 +17,16 @@ public class Message {
     private String fromDisplayName;
     Location fromUserLocation;
     String fromUserName, toUserName;
+
+    public List<DetectedActivity> getDetectedActivityList() {
+        return detectedActivityList;
+    }
+
+    public void setDetectedActivityList(List<DetectedActivity> detectedActivityList) {
+        this.detectedActivityList = detectedActivityList;
+    }
+
+    List<DetectedActivity> detectedActivityList;
 
     public int getActivityValue() {
         return activityValue;

@@ -8,7 +8,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardCornerRadius="20dip"
+    app:cardCornerRadius="15dip"
     android:layout_margin="8dip"
 
     android:id="@+id/message_card_view">
@@ -44,6 +44,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
 
 
+
             />
 
 
@@ -54,25 +55,26 @@ android:text="13.7.89"
     android:textColor="@color/colorPrimary"
     android:id="@+id/message_date"
     android:layout_alignBottom="@id/sender_name"
-    android:layout_marginRight="10dip"
+    android:layout_marginRight="20dip"
     android:layout_alignParentRight="true"
     android:layout_alignParentEnd="true"
     android:layout_alignTop="@+id/sender_name"
     android:textAppearance="?android:attr/textAppearanceSmall"
     />
 
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/bicycle"
             android:layout_below="@+id/message_date"
-            android:layout_alignLeft="@+id/message_date"
-            android:layout_alignStart="@+id/message_date"
             android:layout_marginTop="10dip"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="10dip"
+            android:layout_marginRight="25dip"
             android:id="@+id/activity_image"
             android:layout_marginBottom="10dip"
+            android:text="abc"
+            android:textSize="@dimen/activity_image_size"
+            android:textColor="@color/darkerGrey"
             />
         <TextView
             android:layout_width="wrap_content"
@@ -83,7 +85,9 @@ android:text="13.7.89"
             android:layout_gravity="center_vertical"
 
             android:layout_alignLeft="@id/sender_name"
+            android:layout_alignStart="@+id/sender_name"
             android:layout_below="@id/sender_name"
+
 
             android:layout_marginTop="5dip"
             android:layout_marginBottom="20dip"
@@ -135,37 +139,48 @@ android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="20dp"
         android:layout_marginEnd="20dp" />
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/textArtist"
+    android:text="Radiohead"
+    android:layout_toRightOf="@id/artistImage"
+    android:layout_toLeftOf="@id/button"
+    android:textAlignment="center"
+    android:textAppearance="?android:attr/textAppearanceMedium"
+    android:layout_marginTop="20dip"
+    android:textColor="@color/darkerGrey"
+    android:textStyle="bold"/>
 
     <TextView android:id="@+id/textSong"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Radiohead - Paranoid Android"
-        android:layout_marginLeft="15dip"
-        android:layout_marginRight="15dip"
-        android:layout_toLeftOf="@id/button"
-        android:layout_centerVertical="true"
+        android:text="Paranoid Android"
+        android:layout_below="@id/textArtist"
+
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_toRightOf="@id/artistImage"
+        android:layout_toLeftOf="@id/button"
         android:textAlignment="center"
 
-
-        android:textAppearance="?android:attr/textAppearanceMedium"
-       />
+        />
 
 
 </RelativeLayout>
 
 <LinearLayout
     android:layout_width="wrap_content"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:id="@+id/distance_view_layout">
+    android:id="@+id/distance_view_layout"
+    android:weightSum="100">
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="#c0c0c0"
         android:layout_marginLeft="20dip"
         android:layout_marginRight="20dip"
-        android:id="@+id/spotify_divider" />
+        android:id="@+id/distance_view_divider" />
     <com.example.charlotte.myapplication.DistanceView
         android:layout_width="match_parent"
         android:layout_height="60dip"
@@ -183,7 +198,7 @@ android:layout_centerVertical="true"
 
     <RelativeLayout
  android:layout_width="fill_parent"
-    android:layout_height="70dip"
+    android:layout_height="75dip"
     android:orientation="horizontal"
         android:longClickable="false"
         android:id="@+id/weather_layout">
@@ -194,26 +209,32 @@ android:layout_centerVertical="true"
             android:layout_marginLeft="20dip"
             android:layout_marginRight="20dip"
             android:id="@+id/weather_layout_divider"/>
-<ImageView
-    android:layout_width="@dimen/weather_image_size"
-    android:layout_height="60dip"
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textSize="@dimen/weather_image_size"
     android:id="@+id/weather_image"
-    android:src="@drawable/thermometer"
     android:layout_marginLeft="25dip"
     android:layout_centerVertical="true"
-    android:layout_below="@id/weather_layout_divider"/>
+       android:text="123"
+    android:textColor="@color/colorPrimary"
+    android:alpha="0.75"
+    android:layout_marginTop="30dip"
+
+    android:singleLine="false" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/weather_image"
 
+            android:layout_marginTop="20dip"
             android:text="10 °"
             android:layout_marginLeft="20dip"
-            android:layout_centerVertical="true"
             android:id="@+id/weather_text"
             android:textAppearance="?android:textAppearanceMedium"
-            />
+            android:color="@color/darkerGrey"
+           />
 
 </RelativeLayout>
 </LinearLayout>

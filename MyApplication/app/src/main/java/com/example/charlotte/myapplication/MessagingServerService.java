@@ -23,7 +23,7 @@ public interface MessagingServerService {
 
     ///message/getConversation?fromUserName=user1234&toUserName=user456&queryLimit=10&skip=0
     @GET("message/getConversation")
-    Call<List<Message>> getConversation(@Query("fromUserName") String fromUserName, @Query("toUserName") String toUserName, @Query("skip") int skip);
+    Call<List<Message>> getConversation(@Query("fromUserName") String fromUserName, @Query("toUserName") String toUserName, @Query("queryLimit") int queryLimit);
 
 ///message/writeMessage?fromUserName=user1234&toUserName=user456&messageText=HelloWorld
     @GET("message/writeMessage")
@@ -35,6 +35,10 @@ public interface MessagingServerService {
 
     @GET("pushes/addTokenForUser")
     Call<Result> sendToken(@Query("username") String username, @Query("token") String token);
+
+    @GET("pushes/getTokenForUser")
+    Call<List<String>> getTokenForUser(@Query("username") String username);
+
 
     @GET("spotify_auth/refresh_token")
     Call<RefreshAndAccessToken> getAccessTokenForRefreshToken(@Query("client_id") String clientId, @Query("client_secret") String clientSecret, @Query("refresh_token") String refreshToken);

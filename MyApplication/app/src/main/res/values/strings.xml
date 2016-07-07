@@ -24,6 +24,14 @@
     <string name="title_activity_main2">Main2Activity</string>
     <string name="selected_configuration">smaller than 320dp</string>
 
+    <string name="bike">&#58671;</string>
+    <string name="walking">&#xe536;</string>
+    <string name="car">&#xe531;</string>
+    <string name="running">&#xe566;</string>
+    <string name="tilt">&#xE1C1;</string>
+    <string name="still">&#xE16B;</string>
+    <string name="unknown">&#xE8FD;</string>
+
 
 <string name="w01">&#xed80;</string>
 <string name="w02">&#xed81;</string>
@@ -34,6 +42,19 @@
     <string name="w11">&#xeb33;</string>
     <string name="w13">&#xecb9;</string>
     <string name="w50">&#xed1d;</string>
+
+
+    <string name="we01">&#xf00d;</string>
+    <string name="we02">&#xf002;</string>
+    <string name="we03">&#xed82;</string>
+    <string name="we04">&#xed83;</string>
+    <string name="we09">&#xec69;</string>
+    <string name="we10">&#xec55;</string>
+    <string name="we11">&#xeb33;</string>
+    <string name="we13">&#xecb9;</string>
+    <string name="we50">&#xed1d;</string>
+    <string name="further_questions">Fragen? Probleme?\nWende dich bitte an priess@cip.ifi.lmu.de</string>
+    <string name="tilt_enabled">tilt_enabled</string>
 
 
 </resources>

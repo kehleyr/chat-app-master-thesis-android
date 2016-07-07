@@ -9,11 +9,12 @@ import retrofit2.Response;
 /**
  * Created by charlotte on 31.05.16.
  */
-public class WeatherHelper {
+public class WeatherHelper implements ApiRequestInterface {
     private static WeatherHelper ourInstance = new WeatherHelper();
     private static final String openWeatherImageURL= "http://openweathermap.org/img/w/";
     private static final String pngSuffix=".png";
     private static final String weatherAPIKey="82638158e56316d1e162d9cf4463c086";
+    private ApiRequest request;
 
     public static WeatherHelper getInstance() {
         return ourInstance;
@@ -55,5 +56,15 @@ public class WeatherHelper {
 
 
 
+    }
+
+    @Override
+    public void setRequest(ApiRequest request) {
+        this.request= request;
+    }
+
+    @Override
+    public ApiRequest getRequest() {
+        return request;
     }
 }

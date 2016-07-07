@@ -2,6 +2,6 @@
 <resources>
     <dimen name="artist_image_size">120dip</dimen>
     <dimen name="button_image_width">70dip</dimen>
-    <dimen name="activity_image_size">40dip</dimen>
-    <dimen name="weather_image_size">80dip</dimen>
+    <dimen name="activity_image_size">50sp</dimen>
+    <dimen name="weather_image_size">50sp</dimen>
 </resources>

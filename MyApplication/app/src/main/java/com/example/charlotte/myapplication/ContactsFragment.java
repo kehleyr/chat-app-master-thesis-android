@@ -34,6 +34,7 @@ public class ContactsFragment extends ListFragment {
 
         Intent intent = new Intent(getActivity(), SingleConversationActivity.class);
         intent.putExtra("username", user.getUsername());
+        intent.putExtra("displayName", user.getDisplayName());
         startActivity(intent);
 
     }

@@ -5,17 +5,17 @@
     tools:context=".HelpFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+
+
+
 
     <TextView
-        android:layout_width="338dp"
-        android:layout_height="195dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dip"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="For further questions please contact c.priess@posteo.de"
+        android:text="@string/further_questions"
         android:id="@+id/textView"
-        android:layout_gravity="center" />
+ />
 
 </FrameLayout>

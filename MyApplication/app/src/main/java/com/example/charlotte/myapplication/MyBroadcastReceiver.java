@@ -48,10 +48,14 @@ import android.util.Log;
 
                 Log.d("TAG", "set artist and track: "+artistName+" "+trackName);
 
+                if (trackName==null || artistName==null || trackName.equals("") || artistName.equals("") ) {
+                    Log.d("BroadcastReceiver", "could not set current song because it was null");
+                    return;
+
+                }
                     Song song = new Song(artistName, trackName);
                     if (trackId!=null)
                     {
-
                         Log.d("TAG", "set track id: "+trackId);
                         song.setSpotifyID(trackId);
 

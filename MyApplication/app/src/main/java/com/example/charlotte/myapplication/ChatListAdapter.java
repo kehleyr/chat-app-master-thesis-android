@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -35,6 +36,9 @@ public class ChatListAdapter extends ArrayAdapter<User> {
     }
 
     public void initializeAdapter() {
+
+        Toast.makeText(getContext(),"initialize chat list adapter called", Toast.LENGTH_SHORT).show();
+
         Call<List<User>> call = Application.getService().getUsersForGroup(UserSingleton.getInstance().getGroup());
         Log.d("TAG", "created call");
 
@@ -46,19 +50,21 @@ public class ChatListAdapter extends ArrayAdapter<User> {
                 List<User> users = response.body();
 
 //                Log.d("TAG", "on response called list isze is " + users.size());
+                if (users != null) {
+                    for (User user : users) {
+                        Log.d("TAG", user.toString());
 
-                for (User user : users) {
-                    Log.d("TAG", user.toString());
+                    }
+                    addAll(users);
+                    notifyDataSetChanged();
+
 
                 }
-                addAll(users);
-                notifyDataSetChanged();
-
             }
-
             @Override
             public void onFailure(Call<List<User>> call, Throwable t) {
-                Log.d("TAG", t.toString() + t.getMessage() + t.getStackTrace() + t.getCause());
+                Log.e("TAG", t.toString() + t.getMessage() + t.getStackTrace() + t.getCause());
+                Toast.makeText(getContext(),"initialize chat list adapter failed "+t.getMessage()+t.getCause(), Toast.LENGTH_SHORT).show();
 
             }
         });

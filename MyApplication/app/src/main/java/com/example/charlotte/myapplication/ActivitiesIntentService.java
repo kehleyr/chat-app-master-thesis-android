@@ -1,9 +1,11 @@
 package com.example.charlotte.myapplication;
 
+import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
 import android.provider.SyncStateContract;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
@@ -24,11 +26,23 @@ public class ActivitiesIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-        Intent i = new Intent(ActivityRecognitionConstants.STRING_ACTION);
+
+        for (DetectedActivity detectedActivity: result.getProbableActivities())
+        {
+
+            Log.d("ActivitiesIntentService", "activitiy is: "+detectedActivity+ " "+detectedActivity.getType()+ " confidence: "+detectedActivity.getConfidence());
+        }
+
+      //  ArrayList<DetectedActivity> list = new ArrayList(result.getProbableActivities());
 
       DetectedActivity detectedActivity =  result.getMostProbableActivity();
+       // if (detectedActivity.getConfidence()>50&& detectedActivity.getType()!=DetectedActivity.UNKNOWN && !()) {
+           // Intent i = new Intent(ActivityRecognitionConstants.STRING_ACTION);
+           // i.putExtra(ActivityRecognitionConstants.STRING_EXTRA, detectedActivity.getType());
+           // i.putParcelableArrayListExtra(ActivityRecognitionConstants.LIST_EXTRA,list);
+        intent.setAction(ActivityRecognitionConstants.STRING_ACTION);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
-        i.putExtra(ActivityRecognitionConstants.STRING_EXTRA, detectedActivity.getType());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+       // }
     }
 }

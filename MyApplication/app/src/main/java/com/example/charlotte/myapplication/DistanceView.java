@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -29,6 +30,7 @@ public class DistanceView extends View {
     private String distanceAnnotation;
     private Paint paint;
     private Path path;
+    private Rect r;
 
     public DistanceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -81,7 +83,7 @@ public void init()
     a.recycle();
 
 
-
+   r = new Rect();
 
     paint.setStrokeWidth(5.0f);
 
@@ -133,11 +135,16 @@ public void init()
         paint.setColor(Color.parseColor("#8a000000"));
         paint.setAntiAlias(true);
 
+
         paint.setTextSize(textsize);
+        paint.getTextBounds(distanceAnnotation, 0, distanceAnnotation.length(), r);
+
 
         float textOffset=20.0f;
 
-        canvas.drawText(distanceAnnotation, lineLength/2+textOffset, startY-textOffset, paint);
+
+
+        canvas.drawText(distanceAnnotation, startX+lineLength/2.0f - r.width()/2.0f-r.left, startY-textOffset, paint);
 
 
         Drawable d = getResources().getDrawable(R.drawable.location_pin);

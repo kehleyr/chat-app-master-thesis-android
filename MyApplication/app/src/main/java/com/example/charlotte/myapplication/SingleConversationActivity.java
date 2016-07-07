@@ -8,11 +8,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -29,7 +27,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
@@ -52,16 +49,11 @@ import com.spotify.sdk.android.player.Spotify;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
-import pl.charmas.android.reactivelocation.ReactiveLocationProvider;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 
 public class SingleConversationActivity extends AppCompatActivity implements ConnectionStateCallback, PlayerNotificationCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,SensorEventListener, ResultCallback<Status>, LocationListener {
     private static final String CLIENT_ID = "7deb76a46e184f88ad88542ed347edcc";
@@ -72,8 +64,9 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
     private static final double AMBIENT_NOISE_SAMPLE_SIZE = 0.1;
     private static final int MY_ACCESS_PERMISSION_CONSTANT = 666;
     public static final String ACTIVITY_UPDATE_FILTTEr = "activityUpdate";
-    public static final int ACTIVITY_UPDATE_FREQUENCY = 200;
+    public static final int ACTIVITY_UPDATE_FREQUENCY = 20;
     public static final int LOCATION_REQUEST_INTERVAL = 300000;
+    private Date lastAcitivtyValueSaved;
     private Config playerConfig;
     private GoogleApiClient mGoogleApiClient;
     private ListView myList;
@@ -83,12 +76,14 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
     private Date lastWeatherFetched;
     public static final String UPDATE_CONVERSATION_ACTION="updateConversation";
     private LocationRequest mLocationRequest;
-
-    private boolean mRequestingLocationUpdates=false;
-    private boolean mRequstingActivityUpdates=false;
+    private List<DetectedActivity> lastDetectedActivityList=new ArrayList<>();
 
     Location lastLocation=null;
     private int lastActivity=-1;
+    private boolean shouldTilt=true;
+
+    public SingleConversationActivity() {
+    }
 
     public String getCurrentSongID() {
         return currentSongID;
@@ -109,27 +104,23 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
     }
 
     private boolean isPlaying;
-
-    public Player getmPlayer() {
-        return mPlayer;
-    }
-
-    public void setmPlayer(Player mPlayer) {
-        this.mPlayer = mPlayer;
-    }
-
     private Player mPlayer;
-
     private float lastAccelerometerValues[][] = new float [25][3];
     private int numMeasures=0;
 
+    private String chatDescription;
 
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //LayoutInflaterCompat.setFactory(getLayoutInflater(), new IconicsLayoutInflater(getDelegate()));
+
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        shouldTilt = sharedPref.getBoolean(getResources().getString(R.string.tilt_enabled), true);
 
 
         setContentView(R.layout.activity_single_conversation);
@@ -142,30 +133,38 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
         }
 
       mBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d("TAG", "broadcast received");
-                if (intent.getAction().equals(UPDATE_CONVERSATION_ACTION)) {
-                    updateMessages();
-                }
-                else if (intent.getAction().equals(ActivityRecognitionConstants.STRING_ACTION))
-                {
+          @Override
+          public void onReceive(Context context, Intent intent) {
+              Log.d("TAG", "broadcast received");
+              if (intent.getAction().equals(UPDATE_CONVERSATION_ACTION)) {
+                  updateMessages();
+              } else if (intent.getAction().equals(ActivityRecognitionConstants.STRING_ACTION)) {
 
-                    int mostProbableActivity = intent.getIntExtra(ActivityRecognitionConstants.STRING_EXTRA, 0);
-                    lastActivity=mostProbableActivity;
+                  ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
+
+                  DetectedActivity mostProbableActivity = result.getMostProbableActivity();
+
+                  Log.d("TAG", "activity type is: " + mostProbableActivity.getType() + " confidence: " + mostProbableActivity.getConfidence() + "shouldTilt: " + shouldTilt);
+
+                  if (mostProbableActivity.getConfidence() > 50 && mostProbableActivity.getType() != DetectedActivity.UNKNOWN && !(!shouldTilt && mostProbableActivity.getType() == DetectedActivity.TILTING)) {
+
+                      lastActivity = mostProbableActivity.getType();
+                      lastDetectedActivityList = result.getProbableActivities();
 // Get the type of activity
-                        Log.d("TAG", "activity type is: " + mostProbableActivity);
-                    }
-                }
+                  }
+              }
 
-        };
+          }
 
+          ;
 
+      };
         //senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
        // senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         Intent intent = getIntent();
         final String otherUserName = intent.getStringExtra("username");
+        String otherUserDisplayName=intent.getStringExtra("displayName");
         String currentUserName="";
 
         final User currentUser=UserSingleton.getInstance().getCurrentUser();
@@ -175,7 +174,14 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
             currentUserName=currentUser.getUsername();
         }
 
-      myList = (ListView) findViewById(R.id.listView);
+        chatDescription=currentUserName+otherUserName;
+        lastWeatherFetched=getDateFromSharedPrefs("weather"+chatDescription);
+        lastAcitivtyValueSaved=getDateFromSharedPrefs("activity"+chatDescription);
+
+        Log.d("SingleConversationActiv", lastWeatherFetched.toString());
+
+
+        myList = (ListView) findViewById(R.id.listView);
         myList.setDividerHeight(0);
         myList.setAdapter(new ConversationListAdapter(this, R.layout.contact_list_item, currentUserName, otherUserName));
 
@@ -191,30 +197,24 @@ public class SingleConversationActivity extends AppCompatActivity implements Con
                 String text = editText.getText().toString();
 
                 //TODO: has to be a post request for metadata...
-
-                sendMessage(text, finalCurrentUserName2, otherUserName, finalCurrentUserName, myList);
+                editText.setText("");
+                createMessage(text, finalCurrentUserName2, otherUserName, finalCurrentUserName, myList);
             }
         });
 
+        if (getSupportActionBar()!=null)
+        {
+            getSupportActionBar().setTitle(otherUserDisplayName);
+        }
+
+
         //check if user has enabled spotify through shared preferences...can be annoying otherwise
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         boolean hasSpotify  =sharedPref.getBoolean(getString(R.string.spotify_enabled_string), false);
 
 if (hasSpotify) {
     loginToSpotify();
 }
-        /*
-
-        Intent aware = new Intent(this, Aware.class);
-        startService(aware);
-        Aware.setSetting(this, "status_plugin_ambient_noise", true);
-        Aware.setSetting(this, "plugin_ambient_noise_sample_size", 10);
-        Aware.setSetting(this, "frequency_plugin_ambient_noise", 1);
-        Aware.setSetting(this, "plugin_ambient_noise_silence_threshold", 30);
-        Aware.startPlugin(this, "com.aware.plugin.ambient_noise");
-*/
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -258,185 +258,132 @@ if (hasSpotify) {
         }
     }
 
-    private void sendMessage(final String text, String finalCurrentUserName2, final String otherUserName, final String finalCurrentUserName, final ListView myList) {
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        if (myList!=null && myList.getAdapter()!=null)
+        {
+
+            ((ConversationListAdapter) myList.getAdapter()).initializeAdapter();
+
+        }
+
+    }
+
+    public void scrollMyListViewToBottom() {
+        myList.post(new Runnable() {
+            @Override
+            public void run() {
+                // Select the last row so it will scroll into view...
+                myList.setSelection(myList.getAdapter().getCount() - 1);
+            }
+        });
+    }
+
+
+
+    public void writeDateToSharedPrefs(String prefString, Date value)
+    {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putLong(prefString, value.getTime());
+        editor.commit();
+    }
+
+    public Date getDateFromSharedPrefs(String prefString) {
+        SharedPreferences sharedPref =getPreferences(Context.MODE_PRIVATE);
+        long date = sharedPref.getLong(prefString, 0);
+        return new Date(date);
+    }
+
+
+
+
+
+
+    private void createMessage(final String text, String finalCurrentUserName2, final String otherUserName, final String finalCurrentUserName, final ListView myList) {
 
         //TODO: if not has google play
 
-
         Log.d("singleconversation", "get accelerometer average: "+getAccelerationAverage(lastAccelerometerValues));
 
-
         final Message message = new Message(finalCurrentUserName2, otherUserName, text);
+        //wird immer gesetzt, ist im Zweifel einfach -1
+        message.setActivityValue(lastActivity);
+        message.setDetectedActivityList(lastDetectedActivityList);
 
-        if (MediaPlayingSingleton.getInstance().isPlaying() && MediaPlayingSingleton.getInstance().getCurrentSong() != null) {
+        final List<ApiRequest> requestList = new ArrayList<>();
 
-            message.setSong(MediaPlayingSingleton.getInstance().getCurrentSong());
-        }
-
-
-       // LocationHelper.getInstance().determineLocation(this, getApplicationContext(), new LocationFetchedInteface() {
-         //   @Override
-           // public void hasFetchedLocation(Location location) {
         Location location=null;
         if (lastLocation!=null)
         {
             location=lastLocation;
         }
-        else if (LocationHelper.getInstance().isAllowLocation() ){
+        else if (LocationHelper.getInstance().isAllowLocation() && mGoogleApiClient.isConnected()){
             location=  LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
         }
+        GeoLocation geoLocation=null;
 
-
-            //wird immer gesetzt, ist im Zweifel einfach -1
-            message.setActivityValue(lastActivity);
-
-
-                if (location!=null)
-                {
-                    //use coordinates
-                    GeoLocation geoLocation=new GeoLocation(location.getLatitude(), location.getLongitude());
-                    message.setSenderLocation(geoLocation);
-
-                    if (canRefetchWeather()) {
-                        Log.d("Tag", "can refetch weather");
-
-                        //make asynchronous call to weatherList api through service
-                        WeatherHelper.getInstance().getWeather(geoLocation, new WeatherFetchedCallback() {
-                            @Override
-                            public void onWeatherFetched(WeatherJSON weatherJSON) {
-                                //set weatherList data in message
-
-                                if (weatherJSON != null) {
-                                    message.setWeatherJSON(weatherJSON);
-                                }
-                                //send message to server after callback
-                                sendMessageToServer(message);
-
-                            }
-                        });
-
-
-                    }
-                    else
-                    {
-
-                        sendMessageToServer(message);
-
-                }}
-                else {
-
-                    sendMessageToServer(message);
-                }
-
-
-  //          }
-//        });
-
-        //TODO: user another senderLocation if not accurate enough?
-
-
-        boolean useDecibels=false;
-/*
-        if (useDecibels) {
-            new AsyncTask<Void, Void, Double>() {
-                @Override
-                protected Double doInBackground(Void... voids) {
-                    //Initialize audio recorder. Use MediaRecorder.AudioSource.VOICE_RECOGNITION to disable Automated Voice Gain from microphone and use DSP if available
-                    int buffer_size = AudioRecord.getMinBufferSize(AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_SYSTEM), AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT) * 10;
-
-                    Log.d("TAG", "hertz rate: "+AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_SYSTEM));
-
-                    //Audio data buffer
-                    short[] audio_data = new short[buffer_size];
-                    AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_SYSTEM), AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, buffer_size);
-
-                    if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-                        if (recorder.getRecordingState() == AudioRecord.RECORDSTATE_STOPPED) {
-                            recorder.startRecording();
-                            Log.d("TAG", "start recording");
-                        }
-
-                        double now = System.currentTimeMillis();
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-                        Log.d("TAG", "now read audio data");
-                      int recordedShorts= recorder.read(audio_data, 0, buffer_size);
-
-
-                        recorder.stop();
-                        recorder.release();
-
-
-                        AudioAnalysis audio_analysis = new AudioAnalysis(getApplicationContext(), audio_data, buffer_size);
-
-
-                        return  audio_analysis.getdB(recordedShorts);
-                        // return null;
-                    }
-
-
-
-                    return null;
-
-                }
-
-                @Override
-                protected void onPostExecute(Double aVoid) {
-                    super.onPostExecute(aVoid);
-
-                    AmbientNoise ambientNoise = new AmbientNoise(aVoid);
-                    message.setAmbientNoise(ambientNoise);
-
-                    Call call = Application.getService().writeMessagePost(message);
-                    Log.d("TAG", finalCurrentUserName + " " + otherUserName + text);
-
-                    Log.d("TAG", "created call");
-
-
-                    call.enqueue(new Callback() {
-                        @Override
-                        public void onResponse(Call call, Response response) {
-                            Log.d("TAG", "on response");
-
-
-                            ((ConversationListAdapter) myList.getAdapter()).initializeAdapter();
-                        }
-
-                        @Override
-                        public void onFailure(Call call, Throwable t) {
-
-
-                            Log.d("TAG", "send failed: "+t.getMessage()+t.getCause());
-                        }
-
-
-                    });
-                }
-
-                @Override
-                protected void onProgressUpdate(Void... values) {
-                    super.onProgressUpdate(values);
-                }
-            }.execute();
-
+        if (location!=null)
+        {
+           geoLocation=new GeoLocation(location.getLatitude(), location.getLongitude());
+            message.setSenderLocation(geoLocation);
+        }
+        if (MediaPlayingSingleton.getInstance().isPlaying() && MediaPlayingSingleton.getInstance().getCurrentSong() != null){
+            message.setSong(MediaPlayingSingleton.getInstance().getCurrentSong());
         }
 
-        else
-*/
+        if (location!=null && canRefetchWeather()){
+            ApiRequest request = new ApiRequest<Weather>(Weather.class);
+            WeatherHelper.getInstance().setRequest(request);
+                    requestList.add(request);
+            WeatherHelper.getInstance().getWeather(geoLocation, new WeatherFetchedCallback() {
+                @Override
+                public void onWeatherFetched(WeatherJSON weatherJSON) {
+                    if (weatherJSON != null) {
+                        message.setWeatherJSON(weatherJSON);
+                    }
+                    //should proceed anyway
+                    WeatherHelper.getInstance().getRequest().setHasFetched(true);
+                    checkIfFetchedAllAndSendMessage(message, requestList);
+                }
+            });
+        }
+        Song currentPlayingSong = MediaPlayingSingleton.getInstance().getCurrentSong();
+        if (MediaPlayingSingleton.getInstance().isPlaying() && MediaPlayingSingleton.getInstance().getCurrentSong() != null && currentPlayingSong.getSpotifyID()==null)
+        {
+            ApiRequest spotifyIdRequest = new ApiRequest<Song>(Song.class);
+            SpotifyServiceSingleton.getInstance().setRequest(spotifyIdRequest);
+            requestList.add(spotifyIdRequest);
+            final Song song=MediaPlayingSingleton.getInstance().getCurrentSong();
+            SpotifyServiceSingleton.getInstance().getSpotifyIdForSongData(song.getArtist(), song.getSongname(), new SpotifyTrackCallback() {
+                @Override
+                public void trackFetched(String trackId) {
+                    if (trackId != null) {
+                        song.setSpotifyID(trackId);
+                    }
+                    //should proceed anyway....
+                    SpotifyServiceSingleton.getInstance().getRequest().setHasFetched(true);
+                    checkIfFetchedAllAndSendMessage(message, requestList);
+                }
+            });
+        }
+        checkIfFetchedAllAndSendMessage(message, requestList);
 
+    }
 
+    public void checkIfFetchedAllAndSendMessage(Message message, List<ApiRequest> requestList){
+        for (ApiRequest request: requestList)
+        {
+            if (!request.isHasFetched()) {
+                Log.d("TAG", "request has not been fetched "+request.returnType());
+                return;
+            }
+        }
 
-            Log.d("TAG", finalCurrentUserName + " " + otherUserName + text);
-
-            Log.d("TAG", "created call");
-
-    //    sendMessageToServer(message);
-//TODO: if/else
+        sendMessageToServer(message);
 
 
     }
@@ -453,7 +400,13 @@ if (hasSpotify) {
         Date now = new Date();
         if (lastWeatherFetched!=null) {
             diff = now.getTime() - lastWeatherFetched.getTime();
+            Log.d("TAG", "diff is: "+diff);
         }
+        else {
+
+            Log.d("TAG", "lastweatherfetched is null");
+        }
+        Log.d("TAG", "diff is: "+diff);
 
         lastWeatherFetched=now;
         return diff > WEATHER_UPDATE_THRESHOLD;
@@ -608,7 +561,7 @@ if (hasSpotify) {
 
     public void getNewAccessTokenWithRefreshToken(String refreshToken)
     {
-        Call<RefreshAndAccessToken> call =Application.getService().getAccessTokenForRefreshToken(CLIENT_ID, CLIENT_SECRET,refreshToken);
+        Call<RefreshAndAccessToken> call =Application.getService().getAccessTokenForRefreshToken(CLIENT_ID, CLIENT_SECRET, refreshToken);
 
 
         call.enqueue(new Callback<RefreshAndAccessToken>() {
@@ -616,16 +569,16 @@ if (hasSpotify) {
             public void onResponse(Call<RefreshAndAccessToken> call, Response<RefreshAndAccessToken> response) {
 
 
-               RefreshAndAccessToken refreshAndAccessToken= response.body();
+                RefreshAndAccessToken refreshAndAccessToken = response.body();
                 String accessToken = refreshAndAccessToken.getAccess_token();
-               // String refreshToken = refreshAndAccessToken.getRefresh_token();
+                // String refreshToken = refreshAndAccessToken.getRefresh_token();
                 int expiresIn = refreshAndAccessToken.getExpires_in();
 
                 saveAccessTokenToSharedPreferencess(accessToken, expiresIn);
                 updateSpotifyPlayerWithConfig(accessToken);
 
 
-              //  saveRefreshTokenToSharedPreferences(refreshToken);
+                //  saveRefreshTokenToSharedPreferences(refreshToken);
 
             }
 
@@ -738,6 +691,9 @@ Log.e("TAG", "on logged out");
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        Spotify.destroyPlayer(this);
+
         Log.d("TAG", "on destroy called");
 
 
@@ -754,12 +710,14 @@ Log.e("TAG", "on logged out");
 
     @Override
     public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
+       // mGoogleApiClient.connect();
 
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+
+        Log.e("TAG", "on connection failed: " + connectionResult.getErrorMessage());
 
     }
 
@@ -771,6 +729,7 @@ Log.e("TAG", "on logged out");
         if (mGoogleApiClient.isConnected()) {
             removeActivityUpdates();
             removeLocationUpdates();
+
         }
         //senSensorManager.unregisterListener(this);
 
@@ -912,6 +871,9 @@ Log.e("TAG", "on logged out");
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
+
+        writeDateToSharedPrefs("weather"+chatDescription, lastWeatherFetched);
+        writeDateToSharedPrefs("activity"+chatDescription, lastAcitivtyValueSaved);
     }
 
     public void requestActivityUpdates() {
@@ -952,7 +914,8 @@ Log.e("TAG", "on logged out");
         lastLocation=location;
 
 
-        Log.d("TAG", "new location: "+location.getLatitude()+"  "+location.getLongitude());
+        Log.d("TAG", "new location: " + location.getLatitude() + "  " + location.getLongitude());
 
     }
+
 }

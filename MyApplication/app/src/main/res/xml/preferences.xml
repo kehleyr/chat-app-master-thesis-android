@@ -5,6 +5,11 @@
         android:summary="@string/spotify_summary"
         android:title="@string/spotify_title"
         android:defaultValue="false" />
+    <CheckBoxPreference
+        android:key="@string/tilt_enabled"
+        android:summary="Enable Tilt"
+        android:title="Enable Tilt"
+        android:defaultValue="true"/>
 <EditTextPreference
     android:key="@string/edit_name_key"
     android:summary="@string/edit_name_summary"
