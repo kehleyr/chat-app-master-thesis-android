@@ -32,7 +32,8 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dip">
+        android:layout_marginLeft="20dip"
+        android:id="@+id/messagetext_releative_layout">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,20 +63,7 @@ android:text="13.7.89"
     android:textAppearance="?android:attr/textAppearanceSmall"
     />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/bicycle"
-            android:layout_below="@+id/message_date"
-            android:layout_marginTop="10dip"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="25dip"
-            android:id="@+id/activity_image"
-            android:layout_marginBottom="10dip"
-            android:text="abc"
-            android:textSize="@dimen/activity_image_size"
-            android:textColor="@color/darkerGrey"
-            />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -92,151 +80,64 @@ android:text="13.7.89"
             android:layout_marginTop="5dip"
             android:layout_marginBottom="20dip"
             android:layout_marginRight="20dip"
-            android:layout_toLeftOf="@id/activity_image"/>
+       />
         <!--/LinearLayout-->
     </RelativeLayout>
 
-
-
-<RelativeLayout
+<LinearLayout
     android:layout_width="fill_parent"
-    android:layout_height="100dip"
-    android:orientation="horizontal"
-    android:id="@+id/music_view"
-
-   >
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:background="#c0c0c0"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip"
-        android:id="@+id/music_view_divider"/>
-
-
-    <ImageView android:contentDescription="artistImage" android:id="@+id/artistImage"
-        android:layout_width="@dimen/artist_image_size"
-        android:layout_height="@dimen/artist_image_size"
-        android:src="@drawable/album_preview"
-      android:scaleType="centerCrop"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
-android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-      />
-
-
-    <ImageButton
-        android:layout_width="50dip"
-        android:layout_height="50dip"
-        android:text="Play/Pause"
-        android:id="@+id/button"
-        android:src="@drawable/play_pause"
-        android:background="@android:color/transparent"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="20dp"
-        android:layout_marginEnd="20dp" />
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/textArtist"
-    android:text="Radiohead"
-    android:layout_toRightOf="@id/artistImage"
-    android:layout_toLeftOf="@id/button"
-    android:textAlignment="center"
-    android:textAppearance="?android:attr/textAppearanceMedium"
-    android:layout_marginTop="20dip"
-    android:textColor="@color/darkerGrey"
-    android:textStyle="bold"/>
-
-    <TextView android:id="@+id/textSong"
+    android:layout_height="wrap_content" android:orientation="horizontal"
+    android:layout_marginLeft="20dip"
+    android:layout_marginBottom="20dip">
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Paranoid Android"
-        android:layout_below="@id/textArtist"
+   android:text="500m"
+        android:id="@+id/small_distance_view"
+        android:layout_gravity="center_vertical"
 
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:layout_toRightOf="@id/artistImage"
-        android:layout_toLeftOf="@id/button"
-        android:textAlignment="center"
+        android:layout_marginRight="10dip"
+        />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:contentDescription="artistImage" android:id="@+id/artistImageSmall"
+        android:layout_width="@dimen/artist_image_small_size"
+        android:layout_height="@dimen/artist_image_small_size"
+        android:src="@drawable/album_preview"
+        android:scaleType="centerCrop"
+android:layout_gravity="center_vertical"
+android:layout_marginRight="10dip"
 
         />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/weather_image_small_size"
+        android:id="@+id/weather_image_small"
+        android:text="123"
+        android:textColor="@color/colorPrimary"
+        android:alpha="0.75"
+android:layout_gravity="center_vertical"
+        android:layout_marginRight="10dip"
 
-</RelativeLayout>
+        android:singleLine="false" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/bicycle"
+        android:id="@+id/activity_image_small"
 
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:id="@+id/distance_view_layout"
-    android:weightSum="100">
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:background="#c0c0c0"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip"
-        android:id="@+id/distance_view_divider" />
-    <com.example.charlotte.myapplication.DistanceView
-        android:layout_width="match_parent"
-        android:layout_height="60dip"
-        app:distanceAnnotation="100 m"
-        app:distanceFraction="0.5"
-        app:markerSize="50.0"
-        app:textSize="@integer/distance_view_text_size"
-        android:id="@+id/distanceView"
-        android:layout_marginBottom="10dip"
-     />
+        android:layout_gravity="center_vertical"
+
+        android:text="abc"
+        android:textSize="@dimen/activity_image_small_size"
+        android:textColor="@color/darkerGrey"
+        />
+
 </LinearLayout>
 
 
-
-
-    <RelativeLayout
- android:layout_width="fill_parent"
-    android:layout_height="75dip"
-    android:orientation="horizontal"
-        android:longClickable="false"
-        android:id="@+id/weather_layout">
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="#c0c0c0"
-            android:layout_marginLeft="20dip"
-            android:layout_marginRight="20dip"
-            android:id="@+id/weather_layout_divider"/>
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:textSize="@dimen/weather_image_size"
-    android:id="@+id/weather_image"
-    android:layout_marginLeft="25dip"
-    android:layout_centerVertical="true"
-       android:text="123"
-    android:textColor="@color/colorPrimary"
-    android:alpha="0.75"
-    android:layout_marginTop="30dip"
-
-    android:singleLine="false" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/weather_image"
-
-            android:layout_marginTop="20dip"
-            android:text="10 °"
-            android:layout_marginLeft="20dip"
-            android:id="@+id/weather_text"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:color="@color/darkerGrey"
-           />
-
-</RelativeLayout>
 </LinearLayout>
 
 </android.support.v7.widget.CardView>

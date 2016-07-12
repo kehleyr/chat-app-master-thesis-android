@@ -178,7 +178,7 @@ android:layout_centerVertical="true"
         android:layout_marginLeft="20dip"
         android:layout_marginRight="20dip"
         android:id="@+id/distance_view_divider" />
-    <com.example.charlotte.myapplication.DistanceView
+    <com.app.charlotte.myapplication.location.DistanceView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:distanceAnnotation="100 m"

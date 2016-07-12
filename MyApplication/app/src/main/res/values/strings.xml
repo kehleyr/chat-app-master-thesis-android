@@ -55,6 +55,15 @@
     <string name="we50">&#xed1d;</string>
     <string name="further_questions">Fragen? Probleme?\nWende dich bitte an priess@cip.ifi.lmu.de</string>
     <string name="tilt_enabled">tilt_enabled</string>
+    <string name="title_item_list">Items</string>
+    <string name="title_item_detail">Item Detail</string>
 
-
+    <string name="walking_desc">%1$s geht gerade</string>
+    <string name="onfoot_desc">%1$s geht oder rennt gerade</string>
+<string name="running_desc">%1$s rennt gerade</string>
+    <string name="tilt_desc">%1$s hat das Device stark bewegt</string>
+    <string name="still_desc">%1$s bewegt das Device nicht</string>
+<string name="vehicle_desc">%1$s befindet sich in einem Fahrzeug</string>
+<string name="bicycle_desc">%1$s fährt gerade Fahrrad</string>
+    <string name="default_desc">Nix.</string>
 </resources>

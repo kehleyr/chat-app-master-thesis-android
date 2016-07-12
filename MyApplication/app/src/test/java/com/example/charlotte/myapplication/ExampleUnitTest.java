@@ -1,4 +1,4 @@
-package com.example.charlotte.myapplication;
+package com.app.charlotte.myapplication;
 
 import org.junit.Test;
 
