@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="button_image_width">50dip</dimen>
     <dimen name="artist_image_size">70dip</dimen>
-    <dimen name="activity_image_size">30sp</dimen>
-    <dimen name="weather_image_size">40sp</dimen>
+    <dimen name="activity_image_size">35sp</dimen>
+    <dimen name="weather_image_size">35sp</dimen>
+    <dimen name="artist_image_small_size">40dip</dimen>
+
 </resources>

@@ -117,7 +117,6 @@ public class ItemDetailActivity extends AppCompatActivity implements ConnectionS
 
     message = ConversationListAdapter.getMessage();
 
-     distanceViewDivider=(View)findViewById(R.id.distance_view_divider);
        musicView = (RelativeLayout)findViewById(R.id.music_view);
        songImageView = (ImageView) findViewById(R.id.artistImage);
         songTitleTextView = (TextView) findViewById(R.id.textSong);
@@ -126,7 +125,6 @@ public class ItemDetailActivity extends AppCompatActivity implements ConnectionS
         distanceView = (DistanceView) findViewById(R.id.distanceView);
         weatherImage = (TextView) findViewById(R.id.weather_image);
    weatherText=(TextView)findViewById(R.id.weather_text);
-       spotifyLine = (View)findViewById(R.id.distance_view_divider);
    textArtist=(TextView) findViewById(R.id.textArtist);
      activityImage= (TextView) findViewById(R.id.activity_image);
 weatherView = (RelativeLayout)findViewById(R.id.weather_layout);

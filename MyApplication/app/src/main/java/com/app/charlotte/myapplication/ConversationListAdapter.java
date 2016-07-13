@@ -76,7 +76,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
     {
         if (weatherIconTypeface == null)
         {
-            weatherIconTypeface = Typeface.createFromAsset(context.getAssets(),"fonts/owf-regular2.ttf");
+            weatherIconTypeface = Typeface.createFromAsset(context.getAssets(),"fonts/owfont-regular.ttf");
         }
         return  weatherIconTypeface;
     }
@@ -160,7 +160,9 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
         Log.d("TAG", "hurray message date is not null!");
         Date date = new Date();
-        long diff = date.getTime()-messageDate.getTime();
+        Date correctMessageDate =new Date(messageDate.getTime() + TimeZone.getDefault().getOffset(date.getTime()));
+
+        long diff = date.getTime()-correctMessageDate.getTime();
         long minutes = TimeUnit.MINUTES.convert(diff, TimeUnit.MILLISECONDS);
 
         Log.d("conversation", "minutes is: " + minutes + " amd max minutes is: " + MAX_MINUTES_BETWEEN_DISTANCES);

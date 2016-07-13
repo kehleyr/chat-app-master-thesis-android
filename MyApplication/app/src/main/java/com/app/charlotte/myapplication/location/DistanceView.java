@@ -147,7 +147,7 @@ public void init()
 
 
 
-float yTextOffset=50.0f;
+float yTextOffset=30.0f;
 
         canvas.drawText(distanceAnnotation, startX+lineLength/2.0f - r.width()/2.0f-r.left, startY-yTextOffset, paint);
 
@@ -163,7 +163,7 @@ float yTextOffset=50.0f;
             d.setBounds((int)(lineEndX-imageWidth/2),(int) (startY-imageWidth), (int) (lineEndX+imageWidth/2), (int) startY);
             d.draw(canvas);
         }
-        canvas.drawText("Eure Distanz", lineEndX+textOffset, startY, paint);
+        //canvas.drawText("Eure Distanz", lineEndX+textOffset, startY, paint);
 
 
     }

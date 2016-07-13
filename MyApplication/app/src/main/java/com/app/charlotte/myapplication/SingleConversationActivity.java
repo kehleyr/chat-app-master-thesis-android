@@ -79,8 +79,12 @@ public class SingleConversationActivity extends AppCompatActivity implements  Go
     public SingleConversationActivity() {
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
 
-
+        Log.d("conversation", "on new intent called");
+    }
 
     private float lastAccelerometerValues[][] = new float [25][3];
     private int numMeasures=0;

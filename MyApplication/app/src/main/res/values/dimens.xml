@@ -5,10 +5,11 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="artist_image_size">30dip</dimen>
     <dimen name="button_image_width">50dip</dimen>
-    <dimen name="activity_image_size">30sp</dimen>
-    <dimen name="weather_image_size">30sp</dimen>
+    <dimen name="activity_image_size">35sp</dimen>
+    <dimen name="weather_image_size">35sp</dimen>
     <dimen name="artist_image_small_size">40dip</dimen>
-    <dimen name="weather_image_small_size">40sp</dimen>
-    <dimen name="activity_image_small_size">35sp</dimen>
+    <!--dimen name="weather_image_small_size">35sp</dimen-->
+    <!--dimen name="activity_image_small_size">35sp</dimen-->
     <dimen name="app_bar_height">200dp</dimen>
+    <dimen name="distance_text_preview_size">20sp</dimen>
 </resources>

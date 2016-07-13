@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"-->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+   android:layout_height="wrap_content">
 <android.support.v7.widget.CardView android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -78,7 +82,6 @@ android:text="13.7.89"
 
 
             android:layout_marginTop="5dip"
-            android:layout_marginBottom="20dip"
             android:layout_marginRight="20dip"
        />
         <!--/LinearLayout-->
@@ -88,7 +91,8 @@ android:text="13.7.89"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content" android:orientation="horizontal"
     android:layout_marginLeft="20dip"
-    android:layout_marginBottom="20dip">
+    android:layout_marginBottom="20dip"
+    android:layout_marginTop="20dip">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -96,8 +100,10 @@ android:text="13.7.89"
         android:id="@+id/small_distance_view"
         android:layout_gravity="center_vertical"
 
+        android:textSize="@dimen/distance_text_preview_size"
         android:layout_marginRight="10dip"
-        />
+
+    />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:contentDescription="artistImage" android:id="@+id/artistImageSmall"
@@ -113,7 +119,7 @@ android:layout_marginRight="10dip"
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/weather_image_small_size"
+        android:textSize="@dimen/weather_image_size"
         android:id="@+id/weather_image_small"
         android:text="123"
         android:textColor="@color/colorPrimary"
@@ -131,7 +137,7 @@ android:layout_gravity="center_vertical"
         android:layout_gravity="center_vertical"
 
         android:text="abc"
-        android:textSize="@dimen/activity_image_small_size"
+        android:textSize="@dimen/activity_image_size"
         android:textColor="@color/darkerGrey"
         />
 
@@ -141,4 +147,4 @@ android:layout_gravity="center_vertical"
 </LinearLayout>
 
 </android.support.v7.widget.CardView>
-</FrameLayout>
+<!--/FrameLayout--></RelativeLayout>
