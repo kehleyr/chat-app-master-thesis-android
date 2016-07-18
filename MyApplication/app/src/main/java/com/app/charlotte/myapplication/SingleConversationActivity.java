@@ -134,6 +134,7 @@ public class SingleConversationActivity extends AppCompatActivity implements  Go
 
                       lastActivity = mostProbableActivity.getType();
                       lastDetectedActivityList = result.getProbableActivities();
+                      lastAcitivtyValueSaved=new Date();
 // Get the type of activity
                   }
               }
@@ -159,10 +160,9 @@ public class SingleConversationActivity extends AppCompatActivity implements  Go
         }
 
         chatDescription=currentUserName+otherUserName;
-        lastWeatherFetched=getDateFromSharedPrefs("weather"+chatDescription);
         lastAcitivtyValueSaved=getDateFromSharedPrefs("activity"+chatDescription);
 
-        Log.d("SingleConversationActiv", lastWeatherFetched.toString());
+        Log.d("SingleConversationActiv", lastAcitivtyValueSaved.toString());
 
 
         myList = (ListView) findViewById(R.id.listView);
@@ -288,7 +288,7 @@ outState.putString("username", otherUserName);
             message.setSong(MediaPlayingSingleton.getInstance().getCurrentSong());
         }
 
-        if (location!=null && canRefetchWeather()){
+        if (location!=null){
             ApiRequest request = new ApiRequest<Weather>(Weather.class);
             WeatherHelper.getInstance().setRequest(request);
                     requestList.add(request);
@@ -346,8 +346,8 @@ outState.putString("username", otherUserName);
         ((ConversationListAdapter) myList.getAdapter()).initializeAdapter();
     }
 
-
-    public boolean canRefetchWeather()
+//TODO: use isStillValid method!!!!
+    public boolean isStillValid(Date oldDate, long threshold)
     {
         /*
         long diff=WEATHER_UPDATE_THRESHOLD+1;
@@ -364,7 +364,9 @@ outState.putString("username", otherUserName);
 
         lastWeatherFetched=now;
         return diff > WEATHER_UPDATE_THRESHOLD;*/
-        return true;
+
+        Date now = new Date();
+        return oldDate!=null && (now.getTime()-oldDate.getTime()<threshold);
 
     }
 

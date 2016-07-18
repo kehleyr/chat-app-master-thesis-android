@@ -94,8 +94,8 @@ android:text="13.7.89"
     android:layout_marginBottom="20dip"
     android:layout_marginTop="20dip">
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dip"
+        android:layout_height="50dip"
    android:text="500m"
         android:id="@+id/small_distance_view"
         android:layout_gravity="center_vertical"
@@ -103,7 +103,9 @@ android:text="13.7.89"
         android:textSize="@dimen/distance_text_preview_size"
         android:layout_marginRight="10dip"
 
-    />
+        android:background="@drawable/circle"
+        android:gravity="center_vertical|center_horizontal"
+        android:textColor="@android:color/white"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:contentDescription="artistImage" android:id="@+id/artistImageSmall"
@@ -113,6 +115,7 @@ android:text="13.7.89"
         android:scaleType="centerCrop"
 android:layout_gravity="center_vertical"
 android:layout_marginRight="10dip"
+        android:textColor="@android:color/white"
 
         />
 
