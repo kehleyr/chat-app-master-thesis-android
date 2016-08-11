@@ -3,15 +3,22 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="artist_image_size">30dip</dimen>
     <dimen name="button_image_width">50dip</dimen>
-    <dimen name="activity_image_size">35sp</dimen>
-    <dimen name="weather_image_size">35sp</dimen>
-    <dimen name="artist_image_small_size">40dip</dimen>
+
     <!--dimen name="weather_image_small_size">35sp</dimen-->
     <!--dimen name="activity_image_small_size">35sp</dimen-->
     <dimen name="app_bar_height">200dp</dimen>
     <dimen name="distance_text_preview_size">15sp</dimen>
     <dimen name="distance_circle_width">70dp</dimen>
     <dimen name="distance_circle_corner_width">35dp</dimen>
+    <dimen name="weather_image_large">40sp</dimen>
+    <dimen name="left_margin_detail_activity">25dip</dimen>
+    <dimen name="right_margin_detail_activity">25dip</dimen>
+
+
+    <dimen name="artist_image_size">60dip</dimen>
+    <dimen name="activity_image_size">35sp</dimen>
+    <dimen name="weather_image_size">40sp</dimen>
+    <dimen name="artist_image_small_size">40dip</dimen>
+
 </resources>

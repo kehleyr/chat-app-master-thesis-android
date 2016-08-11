@@ -1,9 +1,14 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
 
-    <dimen name="artist_image_size">60dip</dimen>
-    <dimen name="activity_image_size">30sp</dimen>
-    <dimen name="weather_image_size">30sp</dimen>
-    <dimen name="artist_image_small_size">30dip</dimen>
+    <!--dimen name="artist_image_size">60dip</dimen>
+    <dimen name="activity_image_size">40sp</dimen>
+    <dimen name="weather_image_large">40sp</dimen>
+
+    <dimen name="weather_image_size">40sp</dimen>
+    <dimen name="artist_image_small_size">30dip</dimen-->
+
+    <dimen name="artist_image_size">50dip</dimen>
+
 
 </resources>

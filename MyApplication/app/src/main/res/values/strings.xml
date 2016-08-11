@@ -11,8 +11,8 @@
     <string name="chat_settings">Settings</string>
     <string name="push_notifications_summary">Push enabled</string>
     <string name="push_notifictaions">Enable push notifications</string>
-    <string name="edit_name_summary">Edit Name</string>
-    <string name="edit_name">Edit your username</string>
+    <string name="edit_name_summary">Username ändern</string>
+    <string name="edit_name">Username einstellen</string>
     <string name="chat_help">Help</string>
     <string name="edit_name_key">edit_name</string>
     <string name="edit_display_name_key">edit_display_name</string>
@@ -56,7 +56,7 @@
     <string name="further_questions">Fragen? Probleme?\nWende dich bitte an priess@cip.ifi.lmu.de</string>
     <string name="tilt_enabled">tilt_enabled</string>
     <string name="title_item_list">Items</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="title_item_detail">Details</string>
 
     <string name="walking_desc">%1$s geht gerade</string>
     <string name="onfoot_desc">%1$s geht oder rennt gerade</string>
@@ -66,4 +66,10 @@
 <string name="vehicle_desc">%1$s befindet sich in einem Fahrzeug</string>
 <string name="bicycle_desc">%1$s fährt gerade Fahrrad</string>
     <string name="default_desc">Nix.</string>
+    <string name="location_updates_interval">location_updates_interval</string>
+    <string name="activity_updates_interval">activity_updates_interval</string>
+    <string name="activity_min_confidence">activity_min_confidence</string>
+    <string name="max_minutes_for_dist_comp">max_minutes_for_dist_comp</string>
+    <string name="max_minutes_last_location">max_minutes_last_location</string>
+    <string name="max_minutes_last_activity">max_minutes_last_activity</string>
 </resources>

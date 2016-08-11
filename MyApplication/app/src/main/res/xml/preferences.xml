@@ -12,25 +12,52 @@
         android:defaultValue="true"/>
 <EditTextPreference
     android:key="@string/edit_name_key"
-    android:summary="@string/edit_name_summary"
     android:title="@string/edit_name"/>
 
 
-<EditTextPreference
-android:key="@string/edit_display_name_key"
-    android:summary="Edit display name"
-    android:title="Edit display name"
 
-/>
-
-    <EditTextPreference
+    <!--EditTextPreference
         android:key="@string/groupname"
         android:title="Edit group membership"
         android:summary="Edit group membership"
-/>
+/-->
+
+
     <EditTextPreference
-android:key="@string/server_string"
-android:title="Set server base url"
-        android:summary="Set server base url"
-    />
+        android:key="@string/location_updates_interval"
+        android:title="Location Updates Interval"
+        android:summary="Intervall der Loation Updates Requests"
+        android:defaultValue="@integer/location_updates_interval"/>
+
+<EditTextPreference
+    android:key="@string/activity_updates_interval"
+    android:title="Activity Updates Interval"
+    android:summary="Intervall der Activity Updates"
+    android:defaultValue="@integer/activity_updates_interval"/>
+
+<EditTextPreference
+    android:key="@string/activity_min_confidence"
+    android:title="Activity Min Confidence"
+    android:summary="Minimale Konfidenz für Activity"
+    android:defaultValue="@integer/min_confidence"/>
+
+    <EditTextPreference
+        android:key="@string/max_minutes_for_dist_comp"
+        android:title="Max time for Dist Comp"
+        android:summary="Maximum time for distance computation"
+        android:defaultValue="@integer/max_minutes_for_dist_comp"/>
+
+    <!--EditTextPreference
+        android:key="@string/max_minutes_last_location"
+        android:title="Max minutes last location"
+        android:summary="Gültigkeitsdauer des zuletzt ermittelten Standorts"
+        android:defaultValue="@integer/max_minutes_last_location"/-->
+
+    <!--EditTextPreference
+        android:key="@string/max_minutes_last_activity"
+        android:title="Max minutes last activity"
+        android:summary="Gültigkeitsdauer der letzten gemessenen Aktivität"
+        android:defaultValue="@integer/max_minutes_last_activity"/-->
+
+
 </PreferenceScreen>

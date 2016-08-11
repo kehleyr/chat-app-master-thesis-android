@@ -13,29 +13,37 @@
         android:layout_above="@id/editText"/-->
 
 
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/send_button"
+
+        android:layout_marginLeft="15dip"
+
+        android:layout_alignParentStart="false"
+        android:src="@drawable/ic_send_button"
+        android:layout_alignParentEnd="true"
+        android:background="@null"
+        android:adjustViewBounds="false"
+        android:scaleType="fitCenter"
+        android:layout_marginRight="15dip"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="15dip"
+      />
+
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:inputType="textMultiLine"
         android:ems="10"
         android:id="@+id/editText"
-        android:layout_marginLeft="25dp"
-        android:layout_marginStart="25dp"
 
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dip"
-    />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Senden"
-        android:id="@+id/send_button"
+        android:layout_alignBottom="@+id/send_button"
+        android:layout_toLeftOf="@+id/send_button"
+        android:layout_toStartOf="@+id/send_button"
+        android:layout_marginLeft="35dip"
+        android:layout_marginBottom="-5dp" />
 
-        android:layout_toRightOf="@id/editText"
-        android:layout_marginLeft="20dip"
-        android:layout_alignBottom="@id/editText"
-
-    />
 
     <ListView
         android:layout_width="wrap_content"
@@ -44,5 +52,5 @@
 
         android:layout_marginBottom="20dp"
         android:layout_above="@id/editText"
-        android:transcriptMode="alwaysScroll"/>
+        android:transcriptMode="alwaysScroll" />
 </RelativeLayout>

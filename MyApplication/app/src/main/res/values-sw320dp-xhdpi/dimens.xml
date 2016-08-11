@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="artist_image_size">70dip</dimen>
+    <!--dimen name="artist_image_size">60dip</dimen>
     <dimen name="activity_image_size">35sp</dimen>
-    <dimen name="weather_image_size">35sp</dimen>
-    <dimen name="artist_image_small_size">40dip</dimen>
+    <dimen name="weather_image_size">45sp</dimen>
+    <dimen name="artist_image_small_size">40dip</dimen-->
+
 
 </resources>
