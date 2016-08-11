@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+<solid android:color="@color/colorPrimary" />
+<size android:height="@dimen/distance_circle_width"
+    android:width="@dimen/distance_circle_width"/>
+<corners
+android:topLeftRadius="@dimen/distance_circle_corner_width"
+    android:topRightRadius="@dimen/distance_circle_corner_width"
+    android:bottomLeftRadius="@dimen/distance_circle_corner_width"
+    android:bottomRightRadius="@dimen/distance_circle_corner_width"/>
+    </shape>

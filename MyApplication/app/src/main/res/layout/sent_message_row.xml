@@ -1,0 +1,29 @@
+
+<RelativeLayout
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+
+>
+    <android.support.v7.widget.CardView android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:background="@color/cardview_light_background"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:cardCornerRadius="15dip"
+        android:layout_marginTop="8dip"
+        android:layout_marginBottom="8dip"
+        android:layout_marginRight="8dip"
+        android:layout_marginLeft="35dip"
+        android:id="@+id/message_card_view">
+
+
+    <include
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    layout="@layout/conversation_list_item"
+    android:background="@color/cardview_light_background"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+  />
+    </android.support.v7.widget.CardView>
+    </RelativeLayout>
