@@ -139,11 +139,12 @@ public class MainActivity extends AppCompatActivity  implements ChatSettingsFrag
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String userName = sharedPref.getString(getString(R.string.edit_name_key), "");
-        String displayName=sharedPref.getString(getString(R.string.edit_display_name_key), "");
-        String groupName = sharedPref.getString(getString(R.string.groupname), "bla");
+       // String displayName=sharedPref.getString(getString(R.string.edit_display_name_key), "");
+      //  String groupName = sharedPref.getString(getString(R.string.groupname), "bla");
 
-        UserSingleton.getInstance().setUser(new User(userName, displayName));
-        UserSingleton.getInstance().setGroup(groupName);
+
+        UserSingleton.getInstance().setUser(new User(userName, ""));
+      //  UserSingleton.getInstance().setGroup(groupName);
 
 
 

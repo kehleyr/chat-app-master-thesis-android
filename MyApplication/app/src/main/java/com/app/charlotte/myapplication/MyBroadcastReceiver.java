@@ -22,6 +22,9 @@ import com.app.charlotte.myapplication.spotify.Song;
             static final String PLAYSTATE_CHANGED="playstatechanged";
         }
 
+
+
+
         @Override
         public void onReceive(Context context, Intent intent) {
 

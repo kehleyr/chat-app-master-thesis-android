@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.app.charlotte.myapplication.chat.ChatListAdapter;
+import com.app.charlotte.myapplication.chat.SingleConversationActivity;
 
 /**
  * Created by charlotte on 4/5/16.

@@ -76,22 +76,24 @@ public class RegistrationIntentService extends IntentService {
 
 
             // TODO: Implement this method to send any registration to your app's servers.
-            if (!sentToServer) {
+         //   if (!sentToServer) {
                 sendRegistrationToServer(token);
                 subscribeTopics(token);
                 sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).apply();
-            }
-            else testIfHasTokenInDatabase(new TokenCallbackInterface() {
+           // }
+       /*     else testIfHasTokenInDatabase(new TokenCallbackInterface() {
                 @Override
                 public void noTokenInDatabase() {
                     sendRegistrationToServer(token);
+
+
                     try {
                         subscribeTopics(token);
                     } catch (IOException e) {
                        // e.printStackTrace();
                     }
                 }
-            });
+            });*/
             // [END register_for_gcm]
         } catch (Exception e) {
             Log.d(TAG, "Failed to complete token refresh", e);

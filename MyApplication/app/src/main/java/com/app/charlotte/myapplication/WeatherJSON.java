@@ -33,66 +33,67 @@ public class WeatherJSON {
         return getMain().getTemp();
     }
 
+    public static class Weather{
 
+        String main;
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getMain() {
+            return main;
+        }
+
+        public void setMain(String main) {
+            this.main = main;
+        }
+
+        String description;
+
+        public String getIcon() {
+            return icon;
+        }
+
+        public void setIcon(String icon) {
+            this.icon = icon;
+        }
+
+        String icon;
+
+
+    }
+
+    public static class Main {
+        public Double getTemp() {
+            return temp;
+        }
+
+        public void setTemp(Double temp) {
+            this.temp = temp;
+        }
+
+        private Double temp;
+
+        public Double getPressure() {
+            return pressure;
+        }
+
+        public void setPressure(Double pressure) {
+            this.pressure = pressure;
+        }
+
+        private Double pressure;
+        private Integer humidity;
+
+
+    }
 
 }
 
-class Main {
-    public Double getTemp() {
-        return temp;
-    }
-
-    public void setTemp(Double temp) {
-        this.temp = temp;
-    }
-
-    private Double temp;
-
-    public Double getPressure() {
-        return pressure;
-    }
-
-    public void setPressure(Double pressure) {
-        this.pressure = pressure;
-    }
-
-    private Double pressure;
-    private Integer humidity;
 
 
-}
-
-class Weather{
-
-    String main;
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getMain() {
-        return main;
-    }
-
-    public void setMain(String main) {
-        this.main = main;
-    }
-
-    String description;
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    String icon;
-
-
-}

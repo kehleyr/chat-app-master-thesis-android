@@ -115,15 +115,13 @@ public class ChatSettingsFragment extends PreferenceFragment implements SharedPr
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
-        if (key.equals(getString(R.string.edit_name_key)) || key.equals(getString(R.string.edit_display_name_key)) || key.equals(getString(R.string.groupname)))
+        if (key.equals(getString(R.string.edit_name_key))  )
         {
 
             String userName= sharedPreferences.getString(getString(R.string.edit_name_key), "");
-            String displayName = sharedPreferences.getString(getString(R.string.edit_display_name_key), "");
-            String groupname= sharedPreferences.getString(getString(R.string.groupname),"");
-            UserSingleton.getInstance().setUser(new User(userName, displayName));
-            UserSingleton.getInstance().setGroup(groupname);
-
+            UserSingleton.getInstance().getCurrentUser().setUsername(userName);
+          //  UserSingleton.getInstance().setGroup(groupname);
+/*
             Call<Result> call = Application.getService().updateDisplayName(UserSingleton.getInstance().getCurrentUser().getUsername(), displayName);
             call.enqueue(new Callback<Result>() {
                 @Override
@@ -136,7 +134,7 @@ public class ChatSettingsFragment extends PreferenceFragment implements SharedPr
 
                     Log.e("TAG", "could not update display name: " + t.getCause() + t.getMessage());
                 }
-            });
+            });*/
 
         }
 

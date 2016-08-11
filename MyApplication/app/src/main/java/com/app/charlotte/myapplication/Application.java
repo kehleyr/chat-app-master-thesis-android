@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.app.charlotte.myapplication.spotify.MySpotifyService;
 import com.app.charlotte.myapplication.spotify.SpotifyServiceSingleton;
+import com.app.charlotte.myapplication.weather.OpenWeatherService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -22,6 +23,7 @@ public class Application extends android.app.Application {
 
 
     private static boolean inSingleConversationActivity;
+    private static String currentUsername;
 
     public static Retrofit getMessageRetrofit() {
         return messageRetrofit;
@@ -58,6 +60,14 @@ public class Application extends android.app.Application {
 
     public static void setInSingleConversationActivity(boolean inSingleConversationActivity) {
         Application.inSingleConversationActivity = inSingleConversationActivity;
+    }
+
+    public static void setCurrentUsername(String currentUsername) {
+        Application.currentUsername = currentUsername;
+    }
+
+    public static String getCurrentUsername() {
+        return currentUsername;
     }
 
     @Override

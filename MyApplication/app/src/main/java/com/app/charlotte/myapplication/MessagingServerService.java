@@ -1,7 +1,9 @@
 package com.app.charlotte.myapplication;
 
+import com.app.charlotte.myapplication.chat.Message;
 import com.app.charlotte.myapplication.spotify.RefreshAndAccessToken;
 
+import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -58,4 +60,10 @@ public interface MessagingServerService {
 
     @GET("message/updateSpotifySongId")
     Call<Result> updateSpotifySongId(@Query("messageId") String messageId, @Query("spotifyID") String spotifyId);
+
+    @GET("logging/addEvent")
+    Call<Result> addEvent(@Query("username") String username, @Query("eventDate") Date eventDate, @Query("event") String event);
+
+    @GET("users/getSameGroupUsers")
+    Call<List<User>> getSameGroupUsers(@Query("username") String username);
 }

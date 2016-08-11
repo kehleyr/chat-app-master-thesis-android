@@ -2,6 +2,7 @@ package com.app.charlotte.myapplication.location;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -11,8 +12,10 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.app.charlotte.myapplication.R;
 
@@ -24,13 +27,19 @@ public class DistanceView extends View {
 
     public static final float DEFAULT_MARKER_SIZE = 50.0f;
     private  int textsize;
-    private  float markerSize=0.0f;
+    private  float markerSize;
     private int color;
     private  float distance;
     private String distanceAnnotation;
     private Paint paint;
     private Path path;
     private Rect r;
+    private float lineLength;
+    private float startX;
+    private int x=0;
+    private int initialWidth=0;
+    private float textOffset;
+    public static final float LINE_LENGTH_MIN_DIP=50;
 
     public DistanceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -43,12 +52,12 @@ public class DistanceView extends View {
  distance = Float.parseFloat(a.getString(R.styleable.DistanceView_distanceFraction));
 distanceAnnotation=a.getString(R.styleable.DistanceView_distanceAnnotation);
         color=a.getColor(R.styleable.DistanceView_textColor, Color.BLACK);
-        markerSize=Float.parseFloat(a.getString(R.styleable.DistanceView_markerSize));
+        markerSize=convertDpToPixel(Float.parseFloat(a.getString(R.styleable.DistanceView_markerSize)), getContext());
         textsize = a.getInt(R.styleable.DistanceView_textSize,36);
 
 
 
-        Log.d("TAG", "distance: "+distance);
+        Log.d("TAG", "distance: " + distance);
 
     }
 
@@ -60,7 +69,7 @@ distanceAnnotation=a.getString(R.styleable.DistanceView_distanceAnnotation);
 
     public void setDistanceFraction(float distance)
     {
-        this.distance=distance;
+       this.distance=distance;
 
 
     }
@@ -70,7 +79,12 @@ distanceAnnotation=a.getString(R.styleable.DistanceView_distanceAnnotation);
         this.distanceAnnotation=distance;
 
     }
-
+    public static float convertDpToPixel(float dp, Context context){
+        Resources resources = context.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return px;
+    }
 public void init()
 {
 
@@ -88,35 +102,72 @@ public void init()
     paint.setStrokeWidth(5.0f);
 
     path = new Path();
+    textOffset=30.0f;
+
+
+
 }
 
+/*
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
+        int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
+        int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
+
+        if (initialWidth==0)
+        {
+            initialWidth= (int) ( distance*(0.9*parentWidth));
+        }
+
+        Log.d("TAG", "initial width in dinstanceview: "+initialWidth);
+
+
+        this.setMeasuredDimension(initialWidth
+                , parentHeight);
+
+    }*/
+public static float convertPixelsToDp(float px, Context context){
+    Resources resources = context.getResources();
+    DisplayMetrics metrics = resources.getDisplayMetrics();
+    float dp = px / ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    return dp;
+}
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
         paint.setTextSize(textsize);
 
+        //das erste mal messen diesmal für maximalen text
+        paint.getTextBounds(distanceAnnotation, 0, distanceAnnotation.length(), r);
+        initialWidth=getWidth();
 
-
-        int x = getWidth();
         int y = getHeight();
-        float startX=60.0f;
         float imageWidth=(markerSize>0.0f)?markerSize: DEFAULT_MARKER_SIZE;
-
         float startY=y/2+imageWidth/2;
+        startX = markerSize/2;
 
 
-        //TODO: annotierte Distanz
 
-        String distanceDesc="Eure Distanz";
+     lineLength=(distance*initialWidth)-markerSize;
+        Log.d("TAG", "original line length in px: "+lineLength);
 
-        paint.getTextBounds(distanceDesc, 0,distanceDesc.length(), r);
-        float textOffset=30.0f;
-
-        float lineLength=distance*(getWidth()-startX-r.width()/2.0f-r.left-2*textOffset);
+       // float lineLengthInDip = convertPixelsToDp(lineLength, getContext());
 
 
+        if (lineLength < (r.width()+markerSize)) {
+
+            lineLength=r.width()+markerSize;
+            Log.d("TAG", "set line length to "+r.width());
+
+            Log.d("TAG", "line length in px: "+lineLength);
+
+        }
+
+        //das zweite mal messen
+      //  paint.getTextBounds(distanceAnnotation, 0, distanceAnnotation.length(), r);
 
 
         //path.close();
@@ -143,7 +194,6 @@ public void init()
         paint.setAntiAlias(true);
 
 
-        paint.getTextBounds(distanceAnnotation, 0, distanceAnnotation.length(), r);
 
 
 
@@ -164,7 +214,12 @@ float yTextOffset=30.0f;
             d.draw(canvas);
         }
         //canvas.drawText("Eure Distanz", lineEndX+textOffset, startY, paint);
+        //ViewGroup.LayoutParams params = getLayoutParams();
+        //params.height=getHeight();
+       // //params.width = (int) (lineEndX+imageWidth/2.0f);
 
+        //Log.d("TAG", "idth: "+params.width+" height "+params.height);
 
+//this.requestLayout();
     }
 }

@@ -48,9 +48,9 @@ public float computeDistanceFractionForView(float distance){
     if (distance>=MAX_DIST_VIEW_LENGTH) {
         distance = MAX_DIST_VIEW_LENGTH;
     }
-    else if (distance<MIN_DIST_VIEW_LENGTH) {
-        distance=MIN_DIST_VIEW_LENGTH;
-    }
+  //  else if (distance<MIN_DIST_VIEW_LENGTH) {
+     //   distance=MIN_DIST_VIEW_LENGTH;
+  //  }
 
     Log.d("TAG", "ergebnisdistanz: "+distance/MAX_DIST_VIEW_LENGTH);
 
@@ -84,10 +84,10 @@ public float computeDistanceFractionForView(float distance){
     }
 
     public  void setAllowLocation(boolean allowLocation) {
-        allowLocation = allowLocation;
+        this.allowLocation = allowLocation;
     }
 
-    private  boolean allowLocation = true;
+    private  boolean allowLocation = false;
 
 
     public  void determineLocation(Context applicationContext, Context activityContext,
