@@ -14,6 +14,7 @@ import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -30,6 +31,7 @@ import com.app.charlotte.myapplication.Application;
 import com.app.charlotte.myapplication.LocationHelper;
 import com.app.charlotte.myapplication.LoggingHelper;
 import com.app.charlotte.myapplication.R;
+import com.app.charlotte.myapplication.SpotifyPhotoCallback;
 import com.app.charlotte.myapplication.SpotifyTrackCallback;
 import com.app.charlotte.myapplication.User;
 import com.app.charlotte.myapplication.UserSingleton;
@@ -58,6 +60,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import kaaes.spotify.webapi.android.models.Track;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,7 +70,7 @@ public class SingleConversationActivity extends AppCompatActivity implements  Go
     private static final int MY_ACCESS_PERMISSION_CONSTANT = 666;
     public static final int ACTIVITY_UPDATE_FREQUENCY = 1000; // 1 Sekunde
     public static final int LOCATION_REQUEST_INTERVAL = 60000; // 1 Minute
-    private Date lastAcitivtyValueSaved;
+    private static Date lastAcitivtyValueSaved;
     private Date lastLocationValueSaved;
     private GoogleApiClient mGoogleApiClient;
     private ListView myList;
@@ -76,13 +79,16 @@ public class SingleConversationActivity extends AppCompatActivity implements  Go
     private Date lastWeatherFetched;
     public static final String UPDATE_CONVERSATION_ACTION="updateConversation";
     private LocationRequest mLocationRequest;
-    private List<DetectedActivity> lastDetectedActivityList=new ArrayList<>();
+    private static List<DetectedActivity>  lastDetectedActivityList=new ArrayList<>();
 
     Location lastLocation=null;
-    private int lastActivity=-1;
+    private static int lastActivity=-1;
     private boolean shouldTilt=true;
     private String otherUserName;
     private String otherUserDisplayName;
+    private int lastActivityValidity;
+    private static Date activityOnExitDate;
+
 
     public SingleConversationActivity() {
     }
@@ -136,9 +142,14 @@ public class SingleConversationActivity extends AppCompatActivity implements  Go
 
         Log.d("TAG", "on create called here");
 
-        checkForLocationPermission();
 
+
+
+
+
+        checkForLocationPermission();
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
 
         shouldTilt = sharedPref.getBoolean(getResources().getString(R.string.tilt_enabled), true);
 
@@ -189,11 +200,19 @@ public class SingleConversationActivity extends AppCompatActivity implements  Go
 
        // senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         Intent intent = getIntent();
-       otherUserName = intent.getStringExtra("username");
-      otherUserDisplayName=intent.getStringExtra("displayName");
+        if (intent.hasExtra("username")) {
+            otherUserName = intent.getStringExtra("username");
+            otherUserDisplayName = intent.getStringExtra("displayName");
+
+        }
+        else {
+            otherUserName=intent.getStringExtra("fromUser");
+            otherUserDisplayName=intent.getStringExtra("displayName");
+
+        }
         String currentUserName="";
 
-        final User currentUser= UserSingleton.getInstance().getCurrentUser();
+        final User currentUser= UserSingleton.getInstance().getCurrentUser(this);
 
         if (currentUser!=null)
         {
@@ -318,7 +337,15 @@ outState.putString("username", otherUserName);
 
         final Message message = new Message(finalCurrentUserName2, otherUserName, text);
         //wird immer gesetzt, ist im Zweifel einfach -1
-        message.setActivityValue(lastActivity);
+
+
+
+
+        int currentLastActivity=lastActivity;
+
+
+
+        message.setActivityValue(currentLastActivity);
         message.setDetectedActivityList(lastDetectedActivityList);
 
         final List<ApiRequest> requestList = new ArrayList<>();
@@ -343,16 +370,16 @@ outState.putString("username", otherUserName);
         }
         GeoLocation geoLocation=null;
 
-        if (location!=null && isStillValidInMinutes(location.getTime(), locationValidityInMinutes))
+        if (location!=null && isStillValid(location.getTime(), locationValidityInMinutes, TimeUnit.MINUTES))
         {
            geoLocation=new GeoLocation(location.getLatitude(), location.getLongitude());
             message.setSenderLocation(geoLocation);
         }
-        if (MediaPlayingSingleton.getInstance().isPlaying() && MediaPlayingSingleton.getInstance().getCurrentSong() != null){
-            message.setSong(MediaPlayingSingleton.getInstance().getCurrentSong());
+        if (MediaPlayingSingleton.getInstance().isPlaying(this) && MediaPlayingSingleton.getInstance().getCurrentSong(this) != null){
+            message.setSong(MediaPlayingSingleton.getInstance().getCurrentSong(this));
         }
 
-        if (location!=null){
+        if (geoLocation!=null){
             ApiRequest request = new ApiRequest<WeatherJSON.Weather>(WeatherJSON.Weather.class);
             WeatherHelper.getInstance().setRequest(request);
                     requestList.add(request);
@@ -368,25 +395,38 @@ outState.putString("username", otherUserName);
                 }
             });
         }
-        Song currentPlayingSong = MediaPlayingSingleton.getInstance().getCurrentSong();
-        if (MediaPlayingSingleton.getInstance().isPlaying() && MediaPlayingSingleton.getInstance().getCurrentSong() != null && currentPlayingSong.getSpotifyID()==null)
-        {
+        if (MediaPlayingSingleton.getInstance().isPlaying(this) && MediaPlayingSingleton.getInstance().getCurrentSong(this) != null) {
             ApiRequest spotifyIdRequest = new ApiRequest<Song>(Song.class);
             SpotifyServiceSingleton.getInstance().setRequest(spotifyIdRequest);
             requestList.add(spotifyIdRequest);
-            final Song song=MediaPlayingSingleton.getInstance().getCurrentSong();
-            SpotifyServiceSingleton.getInstance().getSpotifyIdForSongData(song.getArtist(), song.getSongname(), new SpotifyTrackCallback() {
-                @Override
-                public void trackFetched(String trackId) {
-                    if (trackId != null) {
-                        song.setSpotifyID(trackId);
+            final Song song = MediaPlayingSingleton.getInstance().getCurrentSong(this);
+            if (song.getSpotifyID() == null) {
+                SpotifyServiceSingleton.getInstance().getSpotifyIdForSongData(song.getArtist(), song.getSongname(), new SpotifyTrackCallback() {
+                    @Override
+                    public void trackFetched(Track track) {
+                        if (track != null) {
+                            message.getSong().setSpotifyID("spotify:track:"+track.id);
+                            message.getSong().setSpotifyImageURL(track.album.images.get(0).url);
+                        }
+                        //should proceed anyway....
+                        SpotifyServiceSingleton.getInstance().getRequest().setHasFetched(true);
+                        checkIfFetchedAllAndSendMessage(message, requestList);
                     }
-                    //should proceed anyway....
-                    SpotifyServiceSingleton.getInstance().getRequest().setHasFetched(true);
-                    checkIfFetchedAllAndSendMessage(message, requestList);
-                }
-            });
+                });
+            } else {
+
+                SpotifyServiceSingleton.getInstance().getPhotoPathForTrack(song.getSpotifyID(), new SpotifyPhotoCallback() {
+                    @Override
+                    public void photoFetched(String photo) {
+                        message.getSong().setSpotifyImageURL(photo);
+
+                        SpotifyServiceSingleton.getInstance().getRequest().setHasFetched(true);
+                        checkIfFetchedAllAndSendMessage(message, requestList);
+                    }
+                });
+            }
         }
+
         checkIfFetchedAllAndSendMessage(message, requestList);
 
     }
@@ -433,20 +473,21 @@ outState.putString("username", otherUserName);
         });
     }
 
-    public boolean isStillValidInMinutes(long lastTime, int threshold)
+    public boolean isStillValid(long lastTime, int threshold, TimeUnit timeUnit)
     {
 
 
         Date date = new Date();
 
         long diff = date.getTime()-lastTime;
-        long minutes = TimeUnit.MINUTES.convert(diff, TimeUnit.MILLISECONDS);
+        long minutes = timeUnit.convert(diff, TimeUnit.MILLISECONDS);
 
         Log.d("TAG", "minutes dist " + minutes + " last time: " + lastTime + " threshold: " + threshold);
 
         return minutes < threshold;
 
     }
+
 
 
 
@@ -484,9 +525,10 @@ outState.putString("username", otherUserName);
         }
         //senSensorManager.unregisterListener(this);
 
-        LoggingHelper.getInstance().logEvent(LoggingHelper.CLOSE_MESSAGE_EVENT, UserSingleton.getInstance().getCurrentUser().getUsername());
+        LoggingHelper.getInstance().logEvent(LoggingHelper.CLOSE_MESSAGE_EVENT, UserSingleton.getInstance().getCurrentUser(this).getUsername());
 
 
+        activityOnExitDate =lastAcitivtyValueSaved;
     }
 
     private void removeLocationUpdates() {
@@ -504,8 +546,7 @@ outState.putString("username", otherUserName);
         Application.setCurrentUsername(otherUserName);
 
 
-        LoggingHelper.getInstance().logEvent(LoggingHelper.OPEN_MESSAGE_EVENT, UserSingleton.getInstance().getCurrentUser().getUsername());
-
+        LoggingHelper.getInstance().logEvent(LoggingHelper.OPEN_MESSAGE_EVENT, UserSingleton.getInstance().getCurrentUser(this).getUsername());
         IntentFilter filter=new IntentFilter(UPDATE_CONVERSATION_ACTION);
         filter.addAction(ActivityRecognitionConstants.STRING_ACTION);
         //filter.addAction(ACTIVITY_UPDATE_FILTTEr);
@@ -515,9 +556,31 @@ outState.putString("username", otherUserName);
         requestLocationUpdates();
 
     }
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        lastActivityValidity=Integer.parseInt(sharedPref.getString(getResources().getString(R.string.max_seconds_last_activity), 10+""));
+
+
+        //wenn wir rausgegangen sind aus der Activity und die letzte Activity noch gesetzt ist und sie nicht mehr gültig ist....
+        if (activityOnExitDate!=null && lastActivity!=-1 && !isStillValid(activityOnExitDate.getTime(), lastActivityValidity, TimeUnit.SECONDS)) {
+            lastActivity = -1;
+            Log.d("SingleConversation", "activity not valid anymore: "+(new Date().getTime()-lastAcitivtyValueSaved.getTime()));
+        }
+        else if (activityOnExitDate!=null && lastActivity!=-1)
+        {
+
+            Log.d("SingleConversation", "old activity is still valid");
+        }
+        else
+        {
+            Log.d("SingleConversation", "no old activity");
+        }
+        activityOnExitDate =null;
 
       //  senSensorManager.registerListener(this, senAccelerometer , SensorManager.SENSOR_DELAY_NORMAL);
 
+
+        Log.d("SingleConversation", "on resume single");
     }
 
     private void requestLocationUpdates() {

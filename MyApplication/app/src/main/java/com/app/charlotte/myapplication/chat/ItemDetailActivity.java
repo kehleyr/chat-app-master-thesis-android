@@ -269,7 +269,7 @@ weatherView = (RelativeLayout)findViewById(R.id.weather_layout);
             loginToSpotify();
         }
 
-        LoggingHelper.getInstance().logEvent(LoggingHelper.OPEN_MESSAGE_DETAILS_EVENT, UserSingleton.getInstance().getCurrentUser().getUsername());
+        LoggingHelper.getInstance().logEvent(LoggingHelper.OPEN_MESSAGE_DETAILS_EVENT, UserSingleton.getInstance().getCurrentUser(this).getUsername());
 
     }
 
@@ -360,7 +360,7 @@ weatherView = (RelativeLayout)findViewById(R.id.weather_layout);
             if (song.getSpotifyID()!=null)
             {
 
-                showPlayButtonAndSpotifyImage(song.getSpotifyID());
+                showPlayButtonAndSpotifyImage(message);
             }
         }
         else {
@@ -380,15 +380,13 @@ weatherView = (RelativeLayout)findViewById(R.id.weather_layout);
     }
 
 
-    private void showPlayButtonAndSpotifyImage(final String spotifyId) {
-        SpotifyServiceSingleton.getInstance().getPhotoPathForTrack(spotifyId, new SpotifyPhotoCallback() {
-            @Override
-            public void photoFetched(String photo) {
-                ImageLoader imageLoader = ImageLoader.getInstance();
-                imageLoader.displayImage(photo, songImageView);
+    private void showPlayButtonAndSpotifyImage(final Message message) {
+         ImageLoader imageLoader = ImageLoader.getInstance();
+        if (message.getSong() != null && message.getSong().getSpotifyImageURL() != null)
+        {
+            imageLoader.displayImage(message.getSong().getSpotifyImageURL(), songImageView);
 
-            }
-        });
+        }
 
 
      button.setVisibility(View.VISIBLE);
@@ -399,7 +397,7 @@ weatherView = (RelativeLayout)findViewById(R.id.weather_layout);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              playSong(spotifyId);
+              playSong(message.getSong().getSpotifyID());
 
 
             }
@@ -429,7 +427,7 @@ weatherView = (RelativeLayout)findViewById(R.id.weather_layout);
         {
             mPlayer.pause();
             setIsPaused(true);
-            LoggingHelper.getInstance().logEvent(LoggingHelper.STOP_PLAYING_SONG, UserSingleton.getInstance().getCurrentUser().getUsername());
+            LoggingHelper.getInstance().logEvent(LoggingHelper.STOP_PLAYING_SONG, UserSingleton.getInstance().getCurrentUser(this).getUsername());
 
         }
         else {
@@ -449,7 +447,7 @@ weatherView = (RelativeLayout)findViewById(R.id.weather_layout);
 
             Log.d("TAG","play current song: "+getCurrentSongID());
 
-            LoggingHelper.getInstance().logEvent(LoggingHelper.START_PLAYING_SONG, UserSingleton.getInstance().getCurrentUser().getUsername());
+            LoggingHelper.getInstance().logEvent(LoggingHelper.START_PLAYING_SONG, UserSingleton.getInstance().getCurrentUser(this).getUsername());
 
 
             setCurrentSongID(songID);
@@ -681,7 +679,7 @@ weatherView = (RelativeLayout)findViewById(R.id.weather_layout);
     protected void onPause() {
         super.onPause();
 
-        LoggingHelper.getInstance().logEvent(LoggingHelper.CLOSE_MESSAGE_DETAILS_EVENT, UserSingleton.getInstance().getCurrentUser().getUsername());
+        LoggingHelper.getInstance().logEvent(LoggingHelper.CLOSE_MESSAGE_DETAILS_EVENT, UserSingleton.getInstance().getCurrentUser(this).getUsername());
 
     }
 

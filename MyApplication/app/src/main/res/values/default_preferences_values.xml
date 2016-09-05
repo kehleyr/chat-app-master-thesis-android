@@ -5,7 +5,7 @@
         name="location_updates_interval"
         >60000</integer>
     <integer name="activity_updates_interval">
-        1000
+       500
     </integer>
 
     <integer name="min_confidence">
@@ -13,7 +13,7 @@
     </integer>
     
     <integer name="max_minutes_for_dist_comp">
-        30
+        120
     </integer>
 
     <!--this value is in minutes-->
@@ -22,7 +22,7 @@
     </integer>
 
     <!--this value is in minutes-->
-    <integer name="max_minutes_last_activity">
-        1
+    <integer name="max_seconds_last_activity">
+       10
     </integer>
 </resources>

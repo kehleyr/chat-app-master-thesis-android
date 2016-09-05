@@ -32,18 +32,82 @@ public class Application extends android.app.Application {
     private static Retrofit messageRetrofit;
 
     public static MessagingServerService getService() {
+
+        if (service==null)
+        {
+            Log.e("TAG", "messaging service should not be null");
+
+            Gson gson = new GsonBuilder()
+                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+
+                    .create();
+
+            String url = baseURL;
+            Log.d("Application", url);
+
+
+            try {
+
+                messageRetrofit = new Retrofit.Builder()
+                        .baseUrl(url)
+                        .addConverterFactory(GsonConverterFactory.create(gson))
+
+                        .build()
+                ;
+            }catch(IllegalArgumentException e)
+            {
+                messageRetrofit = new Retrofit.Builder()
+                        .baseUrl(baseURL)
+                        .addConverterFactory(GsonConverterFactory.create(gson))
+
+                        .build();
+
+            }
+
+            service = messageRetrofit.create(MessagingServerService.class);
+        }
+
+
         return service;
     }
 
     private static MessagingServerService service;
 
     public static OpenWeatherService getWeatherService() {
+        if (weatherService==null)
+        {
+            Log.e("TAG", "weather service should not be null");
+            Retrofit weatherRetrofit = new Retrofit.Builder()
+                    .baseUrl("http://api.openweathermap.org/data/2.5/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    // .client(client)
+                    .build();
+
+            weatherService=weatherRetrofit.create(OpenWeatherService.class);
+        }
+
         return weatherService;
     }
 
     private static OpenWeatherService weatherService;
 
     public static MySpotifyService getSpotifyService() {
+        if (spotifyService==null)
+        {
+
+            Log.e("TAG","spotify service should no be null");
+            Retrofit spotifyRetrofit = new Retrofit.Builder()
+                    .baseUrl("https://api.spotify.com/v1/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    // .client(client)
+                    .build();
+
+
+            spotifyService=spotifyRetrofit.create(MySpotifyService.class);
+
+        }
+
+
         return spotifyService;
     }
 
@@ -73,13 +137,15 @@ public class Application extends android.app.Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Log.d("TAG", "application on create called");
+
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 
                 .create();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        String url = sharedPref.getString(getString(R.string.server_string),baseURL);
+        String url = baseURL;
         Log.d("Application", url);
 
 
@@ -134,8 +200,8 @@ public class Application extends android.app.Application {
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .cacheOnDisk(true)
                 .cacheInMemory(true)
-
-                .showImageOnLoading(R.drawable.music_note)
+                .showImageOnLoading(R.drawable.album_preview)
+                .showImageForEmptyUri(R.drawable.album_preview)
                 .considerExifParams(true)
                 .build();
 

@@ -66,4 +66,7 @@ public interface MessagingServerService {
 
     @GET("users/getSameGroupUsers")
     Call<List<User>> getSameGroupUsers(@Query("username") String username);
+
+    @GET("message/updateSpotifyImagePath")
+    Call<Result> updateSpotifyImagePath(@Query("messageId") String messageId, @Query("imagePath") String imagePath);
 }

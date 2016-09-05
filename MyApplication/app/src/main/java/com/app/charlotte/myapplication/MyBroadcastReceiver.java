@@ -8,6 +8,8 @@ import android.util.Log;
 import com.app.charlotte.myapplication.spotify.MediaPlayingSingleton;
 import com.app.charlotte.myapplication.spotify.Song;
 
+import java.util.Date;
+
 /**
  * Created by charlotte on 01.05.16.
  */
@@ -29,7 +31,11 @@ import com.app.charlotte.myapplication.spotify.Song;
         public void onReceive(Context context, Intent intent) {
 
                    Log.d("TAG", "on receive");
-
+            String username="";
+            if (UserSingleton.getInstance().getCurrentUser(context)!=null)
+            {
+                username=UserSingleton.getInstance().getCurrentUser(context).getUsername();
+            }
                    // This is sent with all broadcasts, regardless of type. The value is taken from
             // System.currentTimeMillis(), which you can compare to in order to determine how
             // old the event is.
@@ -66,7 +72,10 @@ import com.app.charlotte.myapplication.spotify.Song;
                         song.setSpotifyID(trackId);
 
                     }
-                    MediaPlayingSingleton.getInstance().setCurrentSong(song);
+
+
+               LoggingHelper.getInstance().logEvent("Play action: "+action+" "+artistName+" : "+song, username);
+                    MediaPlayingSingleton.getInstance().setCurrentSong(song, context);
 
               //  }
                 // Do something with extracted information...
@@ -74,7 +83,11 @@ import com.app.charlotte.myapplication.spotify.Song;
             } else if (action.contains(BroadcastTypes.PLAYBACK_STATE_CHANGED)||action.contains(BroadcastTypes.PLAYSTATE_CHANGED)) {
                 boolean playing = intent.getBooleanExtra("playing", false);
                 int positionInMs = intent.getIntExtra("playbackPosition", 0);
-                MediaPlayingSingleton.getInstance().setIsPlaying(playing);
+
+                LoggingHelper.getInstance().logEvent("Play action: "+action, username);
+
+
+                MediaPlayingSingleton.getInstance().setIsPlaying(playing, context);
 
                 //if (!playing)
                 //{
@@ -85,6 +98,9 @@ import com.app.charlotte.myapplication.spotify.Song;
                 // Do something with extracted information
             } else if (action.contains(BroadcastTypes.QUEUE_CHANGED)) {
                 // Sent only as a notification, your app may want to respond accordingly.
+
+                LoggingHelper.getInstance().logEvent("Play action: "+action, username);
+
             }
         }
     }

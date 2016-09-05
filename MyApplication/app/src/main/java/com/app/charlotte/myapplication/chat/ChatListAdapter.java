@@ -43,7 +43,7 @@ public class ChatListAdapter extends ArrayAdapter<User> {
 
         Toast.makeText(getContext(),"initialize chat list adapter called", Toast.LENGTH_SHORT).show();
 
-        Call<List<User>> call = Application.getService().getSameGroupUsers(UserSingleton.getInstance().getCurrentUser().getUsername());
+        Call<List<User>> call = Application.getService().getSameGroupUsers(UserSingleton.getInstance().getCurrentUser(getContext()).getUsername());
         Log.d("TAG", "created call");
 
         call.enqueue(new Callback<List<User>>() {

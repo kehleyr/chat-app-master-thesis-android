@@ -8,6 +8,7 @@ import com.app.charlotte.myapplication.Application;
 import com.app.charlotte.myapplication.Result;
 import com.app.charlotte.myapplication.SpotifyPhotoCallback;
 import com.app.charlotte.myapplication.SpotifyTrackCallback;
+import com.app.charlotte.myapplication.chat.Message;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -56,6 +57,10 @@ public class SpotifyServiceSingleton implements ApiRequestInterface {
             public void success(Track track, Response response) {
             String firstImageURL =track.album.images.get(0).url;
                 spotifyAPICallBack.photoFetched(firstImageURL);
+
+
+
+
             }
 
 
@@ -70,6 +75,20 @@ public class SpotifyServiceSingleton implements ApiRequestInterface {
       //  return path[0];
     }
 
+    public static void updateSpotifyImagePath(String photo, Message message) {
+        Call<Result> call = Application.getService().updateSpotifyImagePath(message.get_id(),photo);
+        call.enqueue(new retrofit2.Callback<Result>() {
+            @Override
+            public void onResponse(Call<Result> call, retrofit2.Response<Result> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<Result> call, Throwable t) {
+
+            }
+        });
+    }
 
     public void getSpotifyIdForSongData(String artist, String songname, final SpotifyTrackCallback spotifyAPICallBack) {
 
@@ -88,14 +107,16 @@ public class SpotifyServiceSingleton implements ApiRequestInterface {
                 TracksPager tracksPager = response.body();
 
                 String trackId = null;
+                Track track=null;
                 if (tracksPager.tracks.items.size() > 0) {
 
-                    Track track = tracksPager.tracks.items.get(0);
+                   track = tracksPager.tracks.items.get(0);
+                    String firstImageURL =track.album.images.get(0).url;
                     trackId = "spotify:track:"+track.id;
                     Log.d("TAG", "fetched trackid is: " + trackId);
 
                 }
-                spotifyAPICallBack.trackFetched(trackId);
+                spotifyAPICallBack.trackFetched(track);
 
             }
 

@@ -41,26 +41,31 @@ public class WeatherHelper implements ApiRequestInterface {
 
 
 
+        if (location==null)
+        {
+            weatherFetchedCallback.onWeatherFetched(null);
 
-        Call<WeatherJSON> call = Application.getWeatherService().getWeather(location.getLatitude(), location.getLongitude(), weatherAPIKey, "metric");
+        }
+else {
+            Call<WeatherJSON> call = Application.getWeatherService().getWeather(location.getLatitude(), location.getLongitude(), weatherAPIKey, "metric");
 
-        Log.d("TAG", " call: "+ call.request().toString());
-        call.enqueue(new Callback<WeatherJSON>() {
-            @Override
-            public void onResponse(Call<WeatherJSON> call, Response<WeatherJSON> response) {
-                weatherFetchedCallback.onWeatherFetched(response.body());
+            Log.d("TAG", " call: " + call.request().toString());
+            call.enqueue(new Callback<WeatherJSON>() {
+                @Override
+                public void onResponse(Call<WeatherJSON> call, Response<WeatherJSON> response) {
+                    weatherFetchedCallback.onWeatherFetched(response.body());
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<WeatherJSON> call, Throwable t) {
-                weatherFetchedCallback.onWeatherFetched(null);
+                @Override
+                public void onFailure(Call<WeatherJSON> call, Throwable t) {
+                    weatherFetchedCallback.onWeatherFetched(null);
 
-            }
-        });
+                }
+            });
 
 
-
+        }
 
     }
 

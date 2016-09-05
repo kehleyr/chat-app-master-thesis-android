@@ -195,11 +195,7 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         final Message message = getItem(position);
 
         if (message==null) return convertView;
-        boolean fromOtherUser = (!(message.getFromUser().equals(UserSingleton.getInstance().getCurrentUser().getUsername())));
-
-
-
-
+        boolean fromOtherUser = (!(message.getFromUser().equals(UserSingleton.getInstance().getCurrentUser(getContext()).getUsername())));
         final  ViewHolder viewHolder;
 
 
@@ -262,106 +258,102 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
         }
 
 
-        if (message != null) {
+        String displayName = "Name";
+        if (message.getFromUserDisplayName() != null) {
+
+            displayName = message.getFromUserDisplayName();
+            viewHolder.messageSender.setText(displayName);
+        }
+
+        viewHolder.textViewItem.setText(message.getMessageText());
+
+        if (message.getTimestamp()!=null)
+        {
+            Date date = new Date();
+            Date fromGmt = new Date(message.getTimestamp().getTime() + TimeZone.getDefault().getOffset(date.getTime()));
+            SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yy HH:mm", Locale.GERMANY);
+            viewHolder.messageDate.setText(formatter.format(fromGmt));
+        }
 
 
-            String displayName = "Name";
-            if (message.getFromUserDisplayName() != null) {
+        if (message.getSong() != null) {
+            final Song song = message.getSong();
+            //viewHolder.textArtist.setText(song.getArtist());
+           // viewHolder.songTitleTextView.setText(song.getSongname());
 
-                displayName = message.getFromUserDisplayName();
-                viewHolder.messageSender.setText(displayName);
-            }
-
-            viewHolder.textViewItem.setText(message.getMessageText());
-
-            if (message.getTimestamp()!=null)
-            {
-                Date date = new Date();
-                Date fromGmt = new Date(message.getTimestamp().getTime() + TimeZone.getDefault().getOffset(date.getTime()));
-                SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yy HH:mm", Locale.GERMANY);
-                viewHolder.messageDate.setText(formatter.format(fromGmt));
-            }
+           // if (song.getSpotifyID() != null) {
+                final String spotifyId = song.getSpotifyID();
+                showArtistPreviewImage(viewHolder, message);
+           // }
+        } else {
+           hideSpotifySmallImage(viewHolder);
+        }
 
 
-            if (message.getSong() != null) {
-                final Song song = message.getSong();
-                //viewHolder.textArtist.setText(song.getArtist());
-               // viewHolder.songTitleTextView.setText(song.getSongname());
+        if (hasWeatherToDisplay(message)) {
+           // viewHolder.weatherText.setText("Temperatur: " + message.getWeatherJSON().getMain().getTemp() + "°");
+            ImageLoader imageLoader = ImageLoader.getInstance();
+            if (message.getWeatherJSON().getWeatherList() != null) {
+                viewHolder.weatherImageSmall.setTypeface(getWeatherIconTypeface(getContext()));
+                String iconString = message.getWeatherJSON().getWeatherList().get(0).getIcon();
+                String weatherString = getContext().getResources().getString(getWeatherStringForIconString( iconString, getContext()));
+                viewHolder.weatherImageSmall.setText(weatherString);
 
-                if (song.getSpotifyID() != null) {
-                    final String spotifyId = song.getSpotifyID();
-                    showSmallSpotifyImage(viewHolder, spotifyId);
-                }
+                showSmallWeatherImage(viewHolder);
             } else {
-               hideSpotifySmallImage(viewHolder);
+
+                hideSmallWeatherImage(viewHolder);
             }
-
-
-            if (hasWeatherToDisplay(message)) {
-               // viewHolder.weatherText.setText("Temperatur: " + message.getWeatherJSON().getMain().getTemp() + "°");
-                ImageLoader imageLoader = ImageLoader.getInstance();
-                if (message.getWeatherJSON().getWeatherList() != null) {
-                    viewHolder.weatherImageSmall.setTypeface(getWeatherIconTypeface(getContext()));
-                    String iconString = message.getWeatherJSON().getWeatherList().get(0).getIcon();
-                    String weatherString = getContext().getResources().getString(getWeatherStringForIconString( iconString, getContext()));
-                    viewHolder.weatherImageSmall.setText(weatherString);
-
-                    showSmallWeatherImage(viewHolder);
-                } else {
-
-                    hideSmallWeatherImage(viewHolder);
-                }
-            }
-                else {
-
-                    hideSmallWeatherImage(viewHolder);
-                }
-
-
-
-            if (hasActivityToDisplay(message))
-            {
-                //viewHolder.activityImage.setTypeface(getMaterialIconTypeface(getContext()));
-                viewHolder.activityImageSmall.setTypeface(getMaterialIconTypeface(getContext()));
-                String activityText=getContext().getResources().getString(matchActivityTypesToStringRes(message.getActivityValue()));
-              //  viewHolder.activityImage.setText(getContext().getResources().getString(matchActivityTypesToStringRes(message.getActivityValue())));
-                viewHolder.activityImageSmall.setText(activityText);
-
-                showSmallActivityImage(viewHolder);
-
-            }
-            else {
-                hideSmallActivityImage(viewHolder);
-            }
-
-
-            if (hasDistanceToDisplay(message)) {
-
-                float distance = message.getUsersDistance().getDistanceValue();
-             //   showDistanceOnDistanceView(viewHolder, LocationHelper.getInstance().computeDistanceString(distance), LocationHelper.getInstance().computeDistanceFractionForView(distance));
-
-                showSmallDistanceText(viewHolder, LocationHelper.getInstance().computeDistanceString(distance));
-
-            }
-            else if (message.getSenderLocation() != null && fromOtherUser && !timeoutReachedForDistanceComputation(message.getTimestamp())) {
-                    final GeoLocation otherUserDistance = message.getSenderLocation();
-                            if (((SingleConversationActivity)getContext()).getLastLocation() != null) {
-                                Location location = ((SingleConversationActivity)getContext()).getLastLocation();
-                                float[] res = new float[1];
-                                Location.distanceBetween(otherUserDistance.getLatitude(), otherUserDistance.getLongitude(), location.getLatitude(), location.getLongitude(), res);
-                                float distanceInMeters = res[0];
-                                message.setUsersDistance(new Distance(distanceInMeters));
-                                showSmallDistanceText(viewHolder,  LocationHelper.getInstance().computeDistanceString(distanceInMeters));
-                                updateUsersDistance(distanceInMeters, message);
-                            } else {
-                                hideSmallDistanceText(viewHolder);
-                            }
-                }
+        }
             else {
 
-               hideSmallDistanceText(viewHolder);
+                hideSmallWeatherImage(viewHolder);
             }
+
+
+        if (hasActivityToDisplay(message))
+        {
+            //viewHolder.activityImage.setTypeface(getMaterialIconTypeface(getContext()));
+            viewHolder.activityImageSmall.setTypeface(getMaterialIconTypeface(getContext()));
+            String activityText=getContext().getResources().getString(matchActivityTypesToStringRes(message.getActivityValue()));
+          //  viewHolder.activityImage.setText(getContext().getResources().getString(matchActivityTypesToStringRes(message.getActivityValue())));
+            viewHolder.activityImageSmall.setText(activityText);
+
+            showSmallActivityImage(viewHolder);
+
+        }
+        else {
+            hideSmallActivityImage(viewHolder);
+        }
+
+
+        if (hasDistanceToDisplay(message)) {
+
+            float distance = message.getUsersDistance().getDistanceValue();
+         //   showDistanceOnDistanceView(viewHolder, LocationHelper.getInstance().computeDistanceString(distance), LocationHelper.getInstance().computeDistanceFractionForView(distance));
+
+            showSmallDistanceText(viewHolder, LocationHelper.getInstance().computeDistanceString(distance));
+
+        }
+        else if (message.getSenderLocation() != null && fromOtherUser && !timeoutReachedForDistanceComputation(message.getTimestamp())) {
+                final GeoLocation otherUserDistance = message.getSenderLocation();
+                        if (((SingleConversationActivity)getContext()).getLastLocation() != null) {
+                            Location location = ((SingleConversationActivity)getContext()).getLastLocation();
+                            float[] res = new float[1];
+                            Location.distanceBetween(otherUserDistance.getLatitude(), otherUserDistance.getLongitude(), location.getLatitude(), location.getLongitude(), res);
+                            float distanceInMeters = res[0];
+                            message.setUsersDistance(new Distance(distanceInMeters));
+                            showSmallDistanceText(viewHolder,  LocationHelper.getInstance().computeDistanceString(distanceInMeters));
+                            updateUsersDistance(distanceInMeters, message);
+                            Log.d("TAG", "update users distance");
+                        } else {
+                            hideSmallDistanceText(viewHolder);
+                        }
             }
+        else {
+
+           hideSmallDistanceText(viewHolder);
+        }
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -422,15 +414,22 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
     }
 
-    private void showSmallSpotifyImage(final ViewHolder viewHolder, String spotifyId) {
+    private void showArtistPreviewImage(final ViewHolder viewHolder, Message message) {
         viewHolder.artistImageSmall.setVisibility(View.VISIBLE);
-        SpotifyServiceSingleton.getInstance().getPhotoPathForTrack(spotifyId, new SpotifyPhotoCallback() {
-            @Override
-            public void photoFetched(String photo) {
-                ImageLoader imageLoader = ImageLoader.getInstance();
-                imageLoader.displayImage(photo, viewHolder.artistImageSmall);
+        final ImageLoader imageLoader = ImageLoader.getInstance();
+
+        if (message.getSong()!=null && message.getSong().getSpotifyID()!=null) {
+
+            if (viewHolder.artistImageSmall.getTag() == null ||
+                    !viewHolder.artistImageSmall.getTag().equals(message.getSong().getSpotifyImageURL())) {
+                imageLoader.displayImage(message.getSong().getSpotifyImageURL(), viewHolder.artistImageSmall);
+
             }
-        });
+        }
+      else {
+
+            imageLoader.displayImage("", viewHolder.artistImageSmall);
+        }
     }
 
 

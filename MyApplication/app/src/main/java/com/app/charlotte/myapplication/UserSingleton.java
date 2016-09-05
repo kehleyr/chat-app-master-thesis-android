@@ -1,12 +1,24 @@
 package com.app.charlotte.myapplication;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 /**
  * Created by charlotte on 01.05.16.
  */
 public class UserSingleton {
     private String group;
 
-    public User getCurrentUser() {
+    public User getCurrentUser(Context context) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        if (user==null)
+        {
+            String userName = sharedPref.getString(context.getString(R.string.edit_name_key), "");
+           user =new User(userName, "");
+        }
+
+
         return user;
     }
 

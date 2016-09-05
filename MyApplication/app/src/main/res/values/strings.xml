@@ -71,5 +71,5 @@
     <string name="activity_min_confidence">activity_min_confidence</string>
     <string name="max_minutes_for_dist_comp">max_minutes_for_dist_comp</string>
     <string name="max_minutes_last_location">max_minutes_last_location</string>
-    <string name="max_minutes_last_activity">max_minutes_last_activity</string>
+    <string name="max_seconds_last_activity">max_minutes_last_activity</string>
 </resources>

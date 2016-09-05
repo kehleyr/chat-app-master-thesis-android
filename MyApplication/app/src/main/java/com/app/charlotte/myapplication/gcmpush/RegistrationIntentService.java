@@ -106,37 +106,6 @@ public class RegistrationIntentService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
-    private void testIfHasTokenInDatabase(final TokenCallbackInterface tokenCallbackInterface) {
-
-        Call<List<String>> call =  Application.getService().getTokenForUser(UserSingleton.getInstance().getCurrentUser().getUsername());
-
-        call.enqueue(new Callback<List<String>>() {
-            @Override
-            public void onResponse(Call<List<String>> call, Response<List<String>> response) {
-                Log.d("TAG", "on response called");
-
-
-               List<String> list = response.body();
-
-                if (list==null || list.size()==0)
-                {
-                    tokenCallbackInterface.noTokenInDatabase();
-
-                }
-
-
-            }
-
-            @Override
-            public void onFailure(Call<List<String>> call, Throwable t) {
-
-            }
-
-
-        });
-
-    }
-
     /**
      * Persist registration to third-party servers.
      *
@@ -154,7 +123,7 @@ Log.d("TAG", "send token to service");
 
 
 
-        Call<Result> call =  Application.getService().sendToken(UserSingleton.getInstance().getCurrentUser().getUsername(), token);
+        Call<Result> call =  Application.getService().sendToken(UserSingleton.getInstance().getCurrentUser(this).getUsername(), token);
 
         call.enqueue(new Callback<Result>() {
             @Override

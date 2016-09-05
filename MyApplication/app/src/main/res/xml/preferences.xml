@@ -9,7 +9,8 @@
         android:key="@string/tilt_enabled"
         android:summary="Enable Tilt"
         android:title="Enable Tilt"
-        android:defaultValue="true"/>
+        android:defaultValue="true"
+        android:enabled="false"/>
 <EditTextPreference
     android:key="@string/edit_name_key"
     android:title="@string/edit_name"/>
@@ -27,25 +28,30 @@
         android:key="@string/location_updates_interval"
         android:title="Location Updates Interval"
         android:summary="Intervall der Loation Updates Requests"
-        android:defaultValue="@integer/location_updates_interval"/>
+        android:defaultValue="@integer/location_updates_interval"
+        android:enabled="false"/>
 
 <EditTextPreference
     android:key="@string/activity_updates_interval"
     android:title="Activity Updates Interval"
     android:summary="Intervall der Activity Updates"
-    android:defaultValue="@integer/activity_updates_interval"/>
+    android:defaultValue="@integer/activity_updates_interval"
+    android:enabled="false"
+ />
 
 <EditTextPreference
     android:key="@string/activity_min_confidence"
     android:title="Activity Min Confidence"
     android:summary="Minimale Konfidenz für Activity"
-    android:defaultValue="@integer/min_confidence"/>
+    android:defaultValue="@integer/min_confidence"
+    android:enabled="false"/>
 
     <EditTextPreference
         android:key="@string/max_minutes_for_dist_comp"
         android:title="Max time for Dist Comp"
         android:summary="Maximum time for distance computation"
-        android:defaultValue="@integer/max_minutes_for_dist_comp"/>
+        android:defaultValue="@integer/max_minutes_for_dist_comp"
+        android:enabled="false"/>
 
     <!--EditTextPreference
         android:key="@string/max_minutes_last_location"
@@ -53,11 +59,12 @@
         android:summary="Gültigkeitsdauer des zuletzt ermittelten Standorts"
         android:defaultValue="@integer/max_minutes_last_location"/-->
 
-    <!--EditTextPreference
-        android:key="@string/max_minutes_last_activity"
-        android:title="Max minutes last activity"
+    <EditTextPreference
+        android:key="@string/max_seconds_last_activity"
+        android:title="Max seconds last activity"
         android:summary="Gültigkeitsdauer der letzten gemessenen Aktivität"
-        android:defaultValue="@integer/max_minutes_last_activity"/-->
+        android:defaultValue="@integer/max_seconds_last_activity"
+        android:enabled="false"/>
 
 
 </PreferenceScreen>

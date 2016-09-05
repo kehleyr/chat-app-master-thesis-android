@@ -119,7 +119,7 @@ public class ChatSettingsFragment extends PreferenceFragment implements SharedPr
         {
 
             String userName= sharedPreferences.getString(getString(R.string.edit_name_key), "");
-            UserSingleton.getInstance().getCurrentUser().setUsername(userName);
+            UserSingleton.getInstance().getCurrentUser(getActivity()).setUsername(userName);
           //  UserSingleton.getInstance().setGroup(groupname);
 /*
             Call<Result> call = Application.getService().updateDisplayName(UserSingleton.getInstance().getCurrentUser().getUsername(), displayName);

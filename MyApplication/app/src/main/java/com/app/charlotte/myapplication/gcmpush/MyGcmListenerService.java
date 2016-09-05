@@ -1,15 +1,19 @@
 package com.app.charlotte.myapplication.gcmpush;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.app.charlotte.myapplication.Application;
+import com.app.charlotte.myapplication.MainActivity;
 import com.app.charlotte.myapplication.R;
 import com.app.charlotte.myapplication.chat.SingleConversationActivity;
 import com.google.android.gms.gcm.GcmListenerService;
@@ -42,45 +46,68 @@ public class MyGcmListenerService extends GcmListenerService {
             i.putExtra("data", data);
             mBroadcaster.sendBroadcast(i);
         }
+
         else {
 
             startMessageView(data);
         }
+
     }
 
 
 public void startMessageView(Bundle data)
 {
 
+String messageText = (data.getString("messageText")!=null?data.getString("messageText"):null);
+    String displayName=(data.getString("displayName")!=null?data.getString("displayName"):null);
+
     android.support.v4.app.NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(getBaseContext())
-                    .setSmallIcon(R.drawable.speech_bubble)
-                    .setContentTitle(data.getBundle("notification").getString("title"))
-                    .setContentText(data.getBundle("notification").getString("body"));
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                  .setContentTitle("Neue Nachricht von "+displayName)
+                   .setContentText(messageText);
+    mBuilder.setDefaults(Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS|Notification.DEFAULT_VIBRATE);
+mBuilder.setAutoCancel(true);
 
 String fromUser=data.getString("fromUser");
-    String displayName=data.getString("displayName");
     Log.d("TAG", "fromUser = "+fromUser);
 
     Intent resultIntent = new Intent(this, SingleConversationActivity.class);
-
     resultIntent.putExtra("username", fromUser);
     resultIntent.putExtra("displayName", displayName);
+PendingIntent resultPendingIntent;
+// Adds the back stack
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 
+        Log.d("TAG", "create back stack");
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(SingleConversationActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+      resultPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+    else {
+
+        resultPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+    }
+// Adds the Intent to the top of the stack
+
+
+
+
+    Log.d("TAG", "fromuser: "+fromUser+" displayname: "+displayName);
 
     //TODO: get displayname...
     //  otherUserName = intent.getStringExtra("username");
    // otherUserDisplayName=intent.getStringExtra("displayName");
 
-// Because clicking the notification opens a new ("special") activity, there's
-// no need to create an artificial back stack.
-    PendingIntent resultPendingIntent =
-            PendingIntent.getActivity(
-                    this,
-                    0,
-                    resultIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
-            );
 
 
     mBuilder.setContentIntent(resultPendingIntent);

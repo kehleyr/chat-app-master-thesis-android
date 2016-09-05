@@ -8,6 +8,16 @@ public class Song {
     String artist;
     String songname;
 
+    public String getSpotifyImageURL() {
+        return spotifyImageURL;
+    }
+
+    public void setSpotifyImageURL(String spotifyImageURL) {
+        this.spotifyImageURL = spotifyImageURL;
+    }
+
+    String spotifyImageURL;
+
     public String getSpotifyID() {
         return spotifyID;
     }
