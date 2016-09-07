@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.app.charlotte.myapplication.ApiRequest;
 import com.app.charlotte.myapplication.Application;
@@ -54,7 +55,9 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.scottyab.aescrypt.AESCrypt;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -326,13 +329,37 @@ outState.putString("username", otherUserName);
         super.onSaveInstanceState(outState);
     }
 
-    private void createMessage(final String text, String finalCurrentUserName2, final String otherUserName, final String finalCurrentUserName, final ListView myList) {
+    private void createMessage(String text, String finalCurrentUserName2, final String otherUserName, final String finalCurrentUserName, final ListView myList) {
 
         //TODO: if not has google play
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         int locationValidityInMinutes= Integer.parseInt(sharedPref.getString(getString(R.string.max_minutes_last_location), ""+5));
 
+
+        String password= sharedPref.getString(getString(R.string.group_pass), "");
+
+        if (!password.equals(""))
+        {
+            try {
+               text = AESCrypt.encrypt(password, text);
+                Log.d("TAG", "AES encrypt text");
+
+                Toast.makeText(this, "Nachricht verschlüsselt", Toast.LENGTH_SHORT).show();
+
+            }catch (GeneralSecurityException e){
+                //handle error
+                Toast.makeText(this, "Verschlüsselung hat nicht funktioniert, Nachricht unverschlüsselt",Toast.LENGTH_SHORT).show();
+
+                Log.e("TAG", "gneral security exception: "+e.getLocalizedMessage());
+            }
+            catch (IllegalArgumentException e)
+            {
+                Toast.makeText(this, "Verschlüsselung hat nicht funktioniert, Nachricht unverschlüsselt",Toast.LENGTH_SHORT).show();
+
+                Log.e("TAG", "illegal argument exception in singleconversation");
+            }
+        }
 
 
         final Message message = new Message(finalCurrentUserName2, otherUserName, text);

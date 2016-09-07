@@ -8,8 +8,8 @@ android {
         applicationId "com.app.charlotte.myapplication"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 6
-        versionName "0.2.3"
+        versionCode 7
+        versionName "0.2.4"
     }
     buildTypes {
 
@@ -49,5 +49,6 @@ dependencies {
     compile 'com.mikepenz:iconics-core:2.6.6@aar'
     compile 'com.mikepenz:google-material-typeface:2.2.0.1.original@aar'
     compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'com.scottyab:aescrypt:0.0.1'
 
     apply plugin: 'com.google.gms.google-services'}

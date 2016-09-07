@@ -31,7 +31,9 @@ import com.app.charlotte.myapplication.spotify.Song;
 import com.app.charlotte.myapplication.spotify.SpotifyServiceSingleton;
 import com.google.android.gms.location.DetectedActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.scottyab.aescrypt.AESCrypt;
 
+import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -265,7 +267,23 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
             viewHolder.messageSender.setText(displayName);
         }
 
-        viewHolder.textViewItem.setText(message.getMessageText());
+        String messageText = message.getMessageText();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        String password= sharedPref.getString(getContext().getString(R.string.group_pass), "");
+
+        if (!password.equals("")) {
+            try {
+             messageText = AESCrypt.decrypt(password, messageText);
+            } catch (GeneralSecurityException e) {
+                //handle error - could be due to incorrect password or tampered encryptedMsg
+            }
+            catch(IllegalArgumentException e)
+            {
+                Log.e("TAG", "Illegal argument exception");
+            }
+        }
+        viewHolder.textViewItem.setText(messageText);
 
         if (message.getTimestamp()!=null)
         {

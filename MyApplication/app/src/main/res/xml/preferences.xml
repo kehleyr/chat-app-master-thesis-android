@@ -66,5 +66,11 @@
         android:defaultValue="@integer/max_seconds_last_activity"
         android:enabled="false"/>
 
+    <EditTextPreference
+        android:key="@string/group_pass"
+        android:title="Gruppenpasswort"
+        android:summary="Gruppenpasswort zur Verschlüsselung der Texte"
+        android:defaultValue=""
+        android:enabled="true"/>
 
 </PreferenceScreen>
