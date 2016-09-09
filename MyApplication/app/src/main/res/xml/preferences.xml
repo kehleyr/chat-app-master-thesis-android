@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:key="@string/edit_name_key"
+        android:title="@string/edit_name"/>
     <CheckBoxPreference
         android:key="@string/spotify_enabled_string"
         android:summary="@string/spotify_summary"
         android:title="@string/spotify_title"
         android:defaultValue="false" />
+
+    <EditTextPreference
+        android:key="@string/group_pass"
+        android:title="Gruppenpasswort"
+        android:summary="Gruppenpasswort zur Verschlüsselung der Texte"
+        android:defaultValue=""
+        android:enabled="true"/>
+
+
+
     <CheckBoxPreference
         android:key="@string/tilt_enabled"
         android:summary="Enable Tilt"
         android:title="Enable Tilt"
         android:defaultValue="true"
         android:enabled="false"/>
-<EditTextPreference
-    android:key="@string/edit_name_key"
-    android:title="@string/edit_name"/>
+
 
 
 
@@ -66,11 +78,5 @@
         android:defaultValue="@integer/max_seconds_last_activity"
         android:enabled="false"/>
 
-    <EditTextPreference
-        android:key="@string/group_pass"
-        android:title="Gruppenpasswort"
-        android:summary="Gruppenpasswort zur Verschlüsselung der Texte"
-        android:defaultValue=""
-        android:enabled="true"/>
 
 </PreferenceScreen>

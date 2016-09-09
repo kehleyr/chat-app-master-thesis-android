@@ -339,7 +339,7 @@ outState.putString("username", otherUserName);
 
         String password= sharedPref.getString(getString(R.string.group_pass), "");
 
-        if (!password.equals(""))
+        if (!password.equals("") && text!=null &&  !text.equals(""))
         {
             try {
                text = AESCrypt.encrypt(password, text);
@@ -358,6 +358,10 @@ outState.putString("username", otherUserName);
                 Toast.makeText(this, "Verschlüsselung hat nicht funktioniert, Nachricht unverschlüsselt",Toast.LENGTH_SHORT).show();
 
                 Log.e("TAG", "illegal argument exception in singleconversation");
+            }
+            catch (Exception e)
+            {
+                Log.e("TAG", "exception");
             }
         }
 

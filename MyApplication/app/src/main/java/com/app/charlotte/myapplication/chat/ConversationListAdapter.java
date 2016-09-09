@@ -272,15 +272,21 @@ public class ConversationListAdapter extends ArrayAdapter<Message>{
 
         String password= sharedPref.getString(getContext().getString(R.string.group_pass), "");
 
-        if (!password.equals("")) {
+
+        if (!password.equals("")&& messageText!=null && !messageText.equals("")) {
             try {
              messageText = AESCrypt.decrypt(password, messageText);
+                Log.d("TAG", "decrypt message");
             } catch (GeneralSecurityException e) {
                 //handle error - could be due to incorrect password or tampered encryptedMsg
             }
             catch(IllegalArgumentException e)
             {
                 Log.e("TAG", "Illegal argument exception");
+            }
+            catch (Exception e)
+            {
+                Log.e("TAG", e.getLocalizedMessage());
             }
         }
         viewHolder.textViewItem.setText(messageText);
